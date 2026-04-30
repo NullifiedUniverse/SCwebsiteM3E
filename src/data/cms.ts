@@ -1,11 +1,11 @@
 export const DEPTS: Record<string, any> = {
-  "Presidential": { name: { EN: "Presidential", ZH: "學生會代表" }, light: "#fef08a", textLight: "#713f12", dark: "#422006", textDark: "#fde047", shape: "squircle" },
-  "Activities": { name: { EN: "Activities", ZH: "活動部" }, light: "#fce7f3", textLight: "#831843", dark: "#500724", textDark: "#fbcfe8", shape: "cookie" },
-  "Sec & Treas": { name: { EN: "Sec & Treas", ZH: "秘書與總務部" }, light: "#e0e7ff", textLight: "#312e81", dark: "#1e1b4b", textDark: "#c7d2fe", shape: "blob" },
-  "Equipment": { name: { EN: "Equipment", ZH: "器材部" }, light: "#ffedd5", textLight: "#7c2d12", dark: "#431407", textDark: "#fed7aa", shape: "cookie" },
-  "IT": { name: { EN: "IT", ZH: "資訊部" }, light: "#C2E7FF", textLight: "#001D35", dark: "#003458", textDark: "#79CBFF", shape: "squircle" },
-  "PR": { name: { EN: "PR", ZH: "公關部" }, light: "#C4EFCD", textLight: "#00210E", dark: "#00391C", textDark: "#8ED99E", shape: "cookie" },
-  "Student Rights": { name: { EN: "Student Rights", ZH: "學權部" }, light: "#FFDAD6", textLight: "#410002", dark: "#680005", textDark: "#FFB4AB", shape: "blob" },
+  "Presidential": { name: { EN: "Presidential", ZH: "學生會代表" }, light: "#D7E3FF", textLight: "#001B3F", dark: "#00458F", textDark: "#D7E3FF", shape: "squircle" },
+  "Activities": { name: { EN: "Activities", ZH: "活動部" }, light: "#FFD9E2", textLight: "#3A002A", dark: "#8D0A50", textDark: "#FFD9E2", shape: "cookie" },
+  "Sec & Treas": { name: { EN: "Sec & Treas", ZH: "秘書與總務部" }, light: "#EADDFF", textLight: "#2A0054", dark: "#6023B4", textDark: "#EADDFF", shape: "8-leaf clover" },
+  "Equipment": { name: { EN: "Equipment", ZH: "器材部" }, light: "#FFDBCC", textLight: "#331100", dark: "#7A3200", textDark: "#FFDBCC", shape: "4-sided cookie" },
+  "IT": { name: { EN: "IT", ZH: "資訊部" }, light: "#BCE9FF", textLight: "#001F29", dark: "#004D63", textDark: "#BCE9FF", shape: "diamond" },
+  "PR": { name: { EN: "PR", ZH: "公關部" }, light: "#A5F5B2", textLight: "#002107", dark: "#005322", textDark: "#A5F5B2", shape: "flower" },
+  "Student Rights": { name: { EN: "Student Rights", ZH: "學權部" }, light: "#FFDAD6", textLight: "#410002", dark: "#93000A", textDark: "#FFDAD6", shape: "burst" },
 };
 
 export const CMS = {
@@ -18,12 +18,12 @@ export const CMS = {
     image: ""
   },
   events: [
-    { id: "ev-1", type: "event", title: { EN: "End of Year Prom", ZH: "林口康橋年末舞會" }, desc: { EN: "An chaotic evening for students to celebrate the end of the academic year with music, dancing, and lasting memories.", ZH: "專屬學生的狂歡晚會，透過音樂與舞蹈慶祝學年結束並創造美好回憶。" }, date: "MAY 24", colorLight: "#E8DEF8", textLight: "#4A4458", colorDark: "#4A4458", textDark: "#E8DEF8", image: "" },
-    { id: "ev-2", type: "event", title: { EN: "KCISLK Voice Contest", ZH: "康橋好聲音" }, desc: { EN: "A school-wide singing competition showcasing students' vocal talents and musical performances.", ZH: "全校性的歌唱比賽，提供學生展現歌唱才華與勇氣自信的舞台。" }, date: "APR 12", colorLight: "#FFD9E2", textLight: "#3E001D", colorDark: "#631133", textDark: "#FFB1C8", image: "" },
-    { id: "ev-3", type: "event", title: { EN: "Secondary School Interclass Basketball Tournament", ZH: "中學部班際籃球比賽" }, desc: { EN: "A competitive basketball tournament to foster class unity, sportsmanship, and athletic excellence across the secondary school.", ZH: "促進班級凝聚力、運動家精神與體育交流的中學部籃球賽事。" }, date: "MAR 10", colorLight: "#FFDCBE", textLight: "#2C1600", colorDark: "#4A2800", textDark: "#FFB870", image: "" },
-    { id: "ev-4", type: "event", title: { EN: "Mother’s day", ZH: "母親節活動" }, desc: { EN: "Special activities dedicated to expressing gratitude and celebrating mothers within our daily life.", ZH: "專為表達感恩之情所舉辦的特別活動，慶祝並感謝生活中的母親們。" }, date: "MAY 10", colorLight: "#fce7f3", textLight: "#831843", colorDark: "#500724", textDark: "#fbcfe8", image: "" },
-    { id: "ev-5", type: "event", title: { EN: "Denim Day", ZH: "丹寧日" }, desc: { EN: "A designated day where students wear denim to raise awareness for sexual assault prevention and show support for survivors.", ZH: "鼓勵學生穿著丹寧服飾的響應日，提升對性侵防治的意識並聲援受害者。" }, date: "APR 24", colorLight: "#C2E7FF", textLight: "#001D35", colorDark: "#003458", textDark: "#79CBFF", image: "" },
-    { id: "ev-6", type: "event", title: { EN: "Voice & Vision Assembly", ZH: "學生大會" }, desc: { EN: "Student Council assembly to discuss student rights and gather students’ feedback.", ZH: "學生會與學生代表集會，討論學生權益並收集意見。" }, date: "OCT 05", colorLight: "#e0e7ff", textLight: "#312e81", colorDark: "#1e1b4b", textDark: "#c7d2fe", image: "" },
+    { id: "ev-1", type: "event", title: { EN: "End of Year Prom", ZH: "林口康橋年末舞會" }, desc: { EN: "An chaotic evening for students to celebrate the end of the academic year with music, dancing, and lasting memories.", ZH: "專屬學生的狂歡晚會，透過音樂與舞蹈慶祝學年結束並創造美好回憶。" }, date: "MAY 24", colorLight: "#E8DEF8", textLight: "#1D192B", colorDark: "#4A4458", textDark: "#E8DEF8", image: "" },
+    { id: "ev-2", type: "event", title: { EN: "KCISLK Voice Contest", ZH: "康橋好聲音" }, desc: { EN: "A school-wide singing competition showcasing students' vocal talents and musical performances.", ZH: "全校性的歌唱比賽，提供學生展現歌唱才華與勇氣自信的舞台。" }, date: "APR 12", colorLight: "#FFD9E2", textLight: "#3E001D", colorDark: "#631133", textDark: "#FFD9E2", image: "" },
+    { id: "ev-3", type: "event", title: { EN: "Secondary School Interclass Basketball Tournament", ZH: "中學部班際籃球比賽" }, desc: { EN: "A competitive basketball tournament to foster class unity, sportsmanship, and athletic excellence across the secondary school.", ZH: "促進班級凝聚力、運動家精神與體育交流的中學部籃球賽事。" }, date: "MAR 10", colorLight: "#FFDCBE", textLight: "#2C1600", colorDark: "#4A2800", textDark: "#FFDCBE", image: "" },
+    { id: "ev-4", type: "event", title: { EN: "Mother’s day", ZH: "母親節活動" }, desc: { EN: "Special activities dedicated to expressing gratitude and celebrating mothers within our daily life.", ZH: "專為表達感恩之情所舉辦的特別活動，慶祝並感謝生活中的母親們。" }, date: "MAY 10", colorLight: "#FCE7F3", textLight: "#4E082A", colorDark: "#710B3B", textDark: "#FCE7F3", image: "" },
+    { id: "ev-5", type: "event", title: { EN: "Denim Day", ZH: "丹寧日" }, desc: { EN: "A designated day where students wear denim to raise awareness for sexual assault prevention and show support for survivors.", ZH: "鼓勵學生穿著丹寧服飾的響應日，提升對性侵防治的意識並聲援受害者。" }, date: "APR 24", colorLight: "#C2E7FF", textLight: "#001D35", colorDark: "#003458", textDark: "#C2E7FF", image: "" },
+    { id: "ev-6", type: "event", title: { EN: "Voice & Vision Assembly", ZH: "學生大會" }, desc: { EN: "Student Council assembly to discuss student rights and gather students’ feedback.", ZH: "學生會與學生代表集會，討論學生權益並收集意見。" }, date: "OCT 05", colorLight: "#E0E7FF", textLight: "#1E1B4B", colorDark: "#2C2C6A", textDark: "#E0E7FF", image: "" },
   ],
   members: [
     { id: "mem-p1", type: "member", name: "Noah Dok 曾子銘", gen: "7th", role: { EN: "President", ZH: "會長" }, class: "11E", dept: "Presidential", about: { EN: "I balance school life with playing basketball and taking photos, and often find inspiration in social issues and family travels.", ZH: "在忙碌的校園生活之餘，我喜歡透過拍照、聽音樂和打籃球來切換心情。我對社會議題有濃厚好奇心。" }, expectation: { EN: "My goal is a campus where everyone feels at home. I'm here to improve our school life.", ZH: "我希望能強化校園的凝聚力，讓每位同學在康橋都能找到歸屬感。" }, responsibility: { EN: "As President, I lead all departments in organizing school events and facilitate cross-departmental communication.", ZH: "身為學生會長，我的職責是統籌各項學生會舉辦的全校性活動，並協調部會間的溝通與合作。" }, seed: 101, image: "/photos/Photo 2/Leadership/Noah Dok _ 曾子銘.png" },

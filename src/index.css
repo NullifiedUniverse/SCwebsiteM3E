@@ -13,7 +13,11 @@
   body {
     @apply antialiased text-slate-900 bg-white dark:bg-slate-950 dark:text-slate-100;
     font-family: var(--font-sans);
-    font-variation-settings: "wdth" 100, "wght" 400, "opsz" 14;
+    font-variation-settings: "wdth" 100, "wght" 400, "opsz" 18;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-variation-settings: "wdth" 95, "wght" 700, "opsz" 48, "GRAD" 50;
+    @apply tracking-tighter;
   }
 }
 

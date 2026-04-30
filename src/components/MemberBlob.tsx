@@ -41,11 +41,15 @@ export const MemberBlob = React.memo(({ member, activeItem, onClick, darkMode, l
   
   return (
     <motion.div 
+      tabIndex={0}
+      role="button"
+      aria-label={`View details for ${member.name}, ${member.role.EN}`}
+      onKeyDown={(e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleInteraction(); } }}
       initial={{ opacity: 0, x: 30, filter: "blur(4px)", scale: 0.8 }}
       whileInView={{ opacity: 1, x: 0, filter: "blur(0px)", scale: 1 }}
       viewport={{ root: rootRef, margin: "0px -48px", once: true }}
-      className={`flex flex-col items-center gap-4 shrink-0 group relative w-64 ${isTarget ? 'cursor-wait' : 'cursor-pointer'}`}
-      style={{ zIndex: isExpanded ? 100 : (isAndrew ? 20 : 1) }}
+      className={`flex flex-col items-center gap-4 shrink-0 group relative w-64 outline-none focus-visible:ring-4 focus-visible:ring-blue-500 rounded-3xl ${isTarget ? 'cursor-wait' : 'cursor-pointer'}`}
+      animate={{ zIndex: isExpanded ? 100 : (isAndrew ? 20 : 1) }}
       onHoverStart={() => setHovered(true)}
       onHoverEnd={() => setHovered(false)}
       whileHover={{ 
@@ -53,7 +57,7 @@ export const MemberBlob = React.memo(({ member, activeItem, onClick, darkMode, l
         scale: (isTarget && prankLag) ? 1.02 : 1.05 
       }}
       whileTap={{ scale: (isTarget && prankLag) ? 0.99 : 0.94, y: 0 }}
-      transition={{ type: "spring", stiffness: 400, damping: 25 }}
+      transition={{ type: "spring", stiffness: 500, damping: 28, zIndex: { delay: isExpanded ? 0 : 0.6 } }}
       onClick={handleInteraction}
     >
       <motion.div layoutId={`card-${member.id}`} className="relative flex items-center justify-center w-[220px] h-[220px]" style={{ borderRadius: 72, backgroundColor: "transparent" }}>
@@ -85,8 +89,8 @@ export const MemberBlob = React.memo(({ member, activeItem, onClick, darkMode, l
             </defs>
 
             {imageUrl && !imgFailed && (
-              <g transform="translate(4, 4) scale(0.92)">
-                <motion.image animate={{ scale: hovered ? 1.05 : 1, x: hovered ? -2.5 : 0, y: hovered ? -2.5 : 0 }} transition={{ duration: 0.3 }} href={encodeURI(imageUrl)} x="0" y="0" width="100" height="100" preserveAspectRatio="xMidYMid slice" clipPath={`url(#clip-img-${member.id})`} />
+              <g transform="translate(4, 4) scale(0.92)" clipPath={`url(#clip-img-${member.id})`}>
+                <motion.image animate={{ scale: hovered ? 1.05 : 1, x: hovered ? -2.5 : 0, y: hovered ? -2.5 : 0 }} transition={{ duration: 0.3 }} href={encodeURI(imageUrl)} x="0" y="0" width="100" height="100" preserveAspectRatio="xMidYMid slice" />
                 
                 {/* Image glass reflection overlay */}
                 {hovered && (
@@ -107,11 +111,15 @@ export const MemberBlob = React.memo(({ member, activeItem, onClick, darkMode, l
         </motion.div>
       </motion.div>
       
-      <div className="text-center px-1 flex flex-col items-center w-full relative z-10 mt-1">
-        <span className={`font-serif font-black text-xl w-full text-center leading-tight line-clamp-2 cursor-default transition-all duration-300 ${isAndrew && hovered ? "text-cyan-500 drop-shadow-[0_0_8px_rgba(0,255,255,0.8)] scale-110" : "text-slate-800 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400"}`}>
+      <div className="text-center px-1 flex flex-col items-center w-full relative z-10 mt-1 text-xl">
+        <motion.span 
+          initial={{ fontVariationSettings: '"wght" 700, "wdth" 100', scale: 1 }}
+          animate={hovered ? { fontVariationSettings: '"wght" 900, "wdth" 100', scale: isAndrew ? 1.08 : 1.04 } : { fontVariationSettings: '"wght" 700, "wdth" 100', scale: 1 }}
+          transition={{ type: "spring", stiffness: 500, damping: 25 }}
+          className={`font-serif font-black w-full text-center leading-tight line-clamp-2 cursor-default transition-colors duration-300 ${isAndrew && hovered ? "text-cyan-500 drop-shadow-[0_0_8px_rgba(0,255,255,0.8)]" : "text-slate-800 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400"}`}>
           {member.name.split(" ")[0]}
-        </span>
-        <motion.div animate={{ scale: hovered ? 1.08 : 1, y: hovered ? -2 : 0 }} transition={{ type: "spring", stiffness: 400, damping: 25 }} className="text-[10px] font-mono font-bold uppercase tracking-widest opacity-90 mt-1.5 px-4 py-1.5 rounded-full flex items-center justify-center gap-1.5 shadow-sm dark:shadow-md backdrop-blur-md transition-colors border border-black/5 dark:border-white/10" style={{ backgroundColor: bgColor, color: textColor }}>
+        </motion.span>
+        <motion.div animate={{ scale: hovered ? 1.05 : 1, y: hovered ? -1 : 0 }} transition={{ type: "spring", stiffness: 500, damping: 28 }} className="text-[10px] font-mono font-bold uppercase tracking-widest opacity-90 mt-1.5 px-4 py-1.5 rounded-full flex items-center justify-center gap-1.5 shadow-sm dark:shadow-md backdrop-blur-md transition-colors border border-black/5 dark:border-white/10" style={{ backgroundColor: bgColor, color: textColor }}>
           {isAndrew ? <Code size={14} className="shrink-0" /> : (isLeader && <Star size={12} fill="currentColor" className="shrink-0" />)}
           <LangText content={member.role} lang={lang} className="truncate cursor-default whitespace-nowrap" inline={true} />
         </motion.div>

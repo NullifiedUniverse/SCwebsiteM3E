@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "motion/react";
 import { Info } from "lucide-react";
-import { BOUNCE_SPRING } from "../../utils/physics";
+import { BOUNCE_SPRING, getPath } from "../../utils/physics";
 import { LangText } from "../LangText";
 import { ActionPill } from "../ActionPill";
 import { HoverReveal } from "../HoverReveal";
@@ -22,6 +22,14 @@ export function QuickActionsSection({ lang }: QuickActionsSectionProps) {
           whileHover={{ scale: 1.01 }}
           className="relative p-8 rounded-[32px] shadow-none dark:shadow-sm border flex flex-col justify-center min-h-[200px] overflow-hidden w-full bg-slate-50 border-slate-200 dark:bg-slate-900 dark:border-slate-800"
         >
+          {/* M3E decorative shape */}
+          <motion.svg viewBox="0 0 100 100" className="absolute -right-6 -top-6 w-32 h-32 opacity-[0.06] dark:opacity-[0.08] pointer-events-none" aria-hidden="true">
+            <motion.path 
+              fill="currentColor"
+              animate={{ d: [getPath("flower", 100, 100, 0), getPath("flower", 100, 100, 2), getPath("flower", 100, 100, 0)] }}
+              transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+            />
+          </motion.svg>
           <h3 className="font-bold mb-2 text-xl relative z-10 w-full text-slate-800 dark:text-slate-100">
             <LangText content={{ EN: "New Proposal", ZH: "新提案" }} lang={lang} inline />
           </h3>
