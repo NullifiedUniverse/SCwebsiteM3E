@@ -148,14 +148,14 @@ export function ExpandedModal({ activeItem: propActiveItem, setActiveItem, darkM
       >
         <motion.div
           layoutId={`card-${activeItem.id}`}
-          className="w-[96vw] md:w-[94vw] lg:w-[92vw] xl:w-[90vw] max-w-[1560px] h-[94vh] max-h-[980px] relative pointer-events-auto flex flex-col overflow-hidden"
+          className="w-[94vw] md:w-[90vw] lg:w-[88vw] xl:w-[85vw] max-w-[1440px] h-[90vh] max-h-[880px] relative pointer-events-auto flex flex-col overflow-hidden"
           // M3E shape.extra-large = 28dp for dialogs/sheets
           style={{
             backgroundColor: bgColor,
             borderRadius: 28,
             boxShadow: `0 25px 50px -12px rgba(0, 0, 0, 0.45), 0 0 40px rgba(0, 0, 0, 0.15)`,
           }}
-          transition={{ layout: { type: "spring", stiffness: 220, damping: 26, mass: 0.95 } }}
+          transition={{ layout: { type: "spring", stiffness: 220, damping: 32, mass: 0.95 } }}
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-title"
