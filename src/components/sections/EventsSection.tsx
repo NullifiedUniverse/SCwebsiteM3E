@@ -60,7 +60,6 @@ export function EventsSection({
             textShadow: "0 0 0px transparent",
           }}
           transition={M3E_EFFECTS}
-          className="transition-all duration-200"
         >
           <LangText content={{ EN: "Upcoming Events", ZH: "近期活動資訊" }} lang={lang} inline />
         </motion.span>

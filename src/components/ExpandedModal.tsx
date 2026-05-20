@@ -26,6 +26,7 @@ export function ExpandedModal({ activeItem: propActiveItem, setActiveItem, darkM
 
   const [isMobile, setIsMobile] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const scrimRef = useRef<HTMLDivElement>(null);
   const { scrollY } = useScroll({ container: scrollRef });
 
   useEffect(() => {
@@ -35,6 +36,20 @@ export function ExpandedModal({ activeItem: propActiveItem, setActiveItem, darkM
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  useEffect(() => {
+    const scrim = scrimRef.current;
+    if (!scrim) return;
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.cancelable) {
+        e.preventDefault();
+      }
+    };
+    scrim.addEventListener("touchmove", handleTouchMove, { passive: false });
+    return () => {
+      scrim.removeEventListener("touchmove", handleTouchMove);
+    };
   }, []);
 
   const leftPct = useTransform(scrollY, [0, 120], [50, 0], { clamp: true });
@@ -126,15 +141,14 @@ export function ExpandedModal({ activeItem: propActiveItem, setActiveItem, darkM
     <>
       {/* ── Scrim — M3E glassmorphic backdrop ── */}
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+        ref={scrimRef}
+        initial={{ opacity: 0, backdropFilter: "blur(0px)", WebkitBackdropFilter: "blur(0px)" }}
+        animate={{ opacity: 1, backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}
+        exit={{ opacity: 0, backdropFilter: "blur(0px)", WebkitBackdropFilter: "blur(0px)" }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
         className="fixed inset-0"
         style={{
           zIndex: Z_SCRIM,
-          backdropFilter: "blur(16px)",
-          WebkitBackdropFilter: "blur(16px)",
           backgroundColor: 'color-mix(in srgb, var(--md-scrim) 35%, transparent)',
         }}
         onClick={(e) => handleClose(e as any)}
@@ -155,7 +169,7 @@ export function ExpandedModal({ activeItem: propActiveItem, setActiveItem, darkM
             borderRadius: 28,
             boxShadow: `0 25px 50px -12px rgba(0, 0, 0, 0.45), 0 0 40px rgba(0, 0, 0, 0.15)`,
           }}
-          transition={{ layout: { type: "spring", stiffness: 220, damping: 32, mass: 0.95 } }}
+          transition={{ layout: { type: "spring", stiffness: 200, damping: 30, mass: 1.0 } }}
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-title"
@@ -212,7 +226,7 @@ export function ExpandedModal({ activeItem: propActiveItem, setActiveItem, darkM
             ref={scrollRef}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 15, transition: { duration: 0.18, ease: [0.32, 0, 0.67, 0] } }}
+            exit={{ opacity: 0, y: 15, transition: { duration: 0.24, ease: [0.16, 1, 0.3, 1] } }}
             transition={{
               type: "spring",
               stiffness: 220,
@@ -357,7 +371,7 @@ export function ExpandedModal({ activeItem: propActiveItem, setActiveItem, darkM
                       animate={{ y: 0, opacity: 1 }}
                       transition={{ delay, ...M3E_SPATIAL }}
                       whileHover={{ scale: 1.025, y: -4, transition: M3E_FAST }}
-                      className="p-10 sm:p-12 backdrop-blur-sm shadow-sm transition-all duration-300 hover:shadow-md cursor-default glass-glow premium-grid-texture"
+                      className="p-10 sm:p-12 backdrop-blur-sm shadow-sm hover:shadow-md cursor-default glass-glow premium-grid-texture"
                       style={{
                         backgroundColor: darkMode ? 'rgba(0,0,0,0.28)' : 'rgba(255,255,255,0.45)',
                         border: `1px solid ${darkMode ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.5)'}`,

@@ -80,12 +80,15 @@ export default function App() {
       const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
       document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`);
       document.body.classList.add("modal-open");
+      document.documentElement.classList.add("modal-open");
     } else {
       document.body.classList.remove("modal-open");
+      document.documentElement.classList.remove("modal-open");
       document.documentElement.style.removeProperty('--scrollbar-width');
     }
     return () => {
       document.body.classList.remove("modal-open");
+      document.documentElement.classList.remove("modal-open");
       document.documentElement.style.removeProperty('--scrollbar-width');
     };
   }, [activeItem]);
@@ -381,7 +384,7 @@ export default function App() {
           </motion.nav>
 
           {/* Desktop: Floating pill nav (≥ 640px) — M3E Expressive variant */}
-          <div className="hidden sm:flex fixed bottom-6 left-0 right-0 z-40 justify-center pointer-events-none">
+          <div className="hidden sm:flex fixed bottom-6 left-0 right-0 z-40 justify-center pointer-events-none fixed-nav-container">
             <motion.nav
               initial={{ y: 50, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}

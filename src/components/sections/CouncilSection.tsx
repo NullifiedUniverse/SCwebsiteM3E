@@ -107,7 +107,6 @@ export function CouncilSection({
               textShadow: "0 0 0px transparent",
             }}
             transition={M3E_EFFECTS}
-            className="transition-all duration-200"
           >
             <LangText content={{ EN: "Council Directory", ZH: "學生會成員" }} lang={lang} inline />
           </motion.span>

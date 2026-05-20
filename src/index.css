@@ -441,13 +441,20 @@
 }
 
 /* ── Scroll Lock & Layout Jitter Mitigation ── */
+html.modal-open,
 body.modal-open {
   overflow: hidden !important;
+  height: 100vh !important;
+  height: -webkit-fill-available !important;
   padding-right: var(--scrollbar-width, 0px) !important;
 }
 
 body.modal-open header {
   padding-right: calc(var(--scrollbar-width, 0px) + 1.5rem) !important; /* sm:px-6 */
+}
+
+body.modal-open .fixed-nav-container {
+  padding-right: var(--scrollbar-width, 0px) !important;
 }
 
 @media (max-width: 640px) {
