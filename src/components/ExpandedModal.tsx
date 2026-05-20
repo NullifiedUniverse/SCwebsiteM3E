@@ -220,7 +220,7 @@ export function ExpandedModal({ activeItem: propActiveItem, setActiveItem, darkM
               mass: 0.9,
               delay: 0.06
             }}
-            className="absolute inset-0 flex flex-col overflow-y-auto hide-scrollbar z-10"
+            className="absolute inset-0 flex flex-col overflow-y-auto hide-scrollbar overscroll-contain z-10"
           >
             {/* Event image — full-bleed top */}
             {activeItem.image && !isMember && (

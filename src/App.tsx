@@ -78,15 +78,15 @@ export default function App() {
   useLayoutEffect(() => {
     if (activeItem) {
       const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-      document.body.style.paddingRight = `${scrollbarWidth}px`;
-      document.body.style.overflow = "hidden";
+      document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`);
+      document.body.classList.add("modal-open");
     } else {
-      document.body.style.paddingRight = "0px";
-      document.body.style.overflow = "auto";
+      document.body.classList.remove("modal-open");
+      document.documentElement.style.removeProperty('--scrollbar-width');
     }
     return () => {
-      document.body.style.paddingRight = "0px";
-      document.body.style.overflow = "auto";
+      document.body.classList.remove("modal-open");
+      document.documentElement.style.removeProperty('--scrollbar-width');
     };
   }, [activeItem]);
 

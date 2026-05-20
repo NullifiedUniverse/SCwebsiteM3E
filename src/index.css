@@ -440,6 +440,22 @@
   background: linear-gradient(135deg, var(--md-primary), transparent 50%, var(--md-tertiary));
 }
 
+/* ── Scroll Lock & Layout Jitter Mitigation ── */
+body.modal-open {
+  overflow: hidden !important;
+  padding-right: var(--scrollbar-width, 0px) !important;
+}
+
+body.modal-open header {
+  padding-right: calc(var(--scrollbar-width, 0px) + 1.5rem) !important; /* sm:px-6 */
+}
+
+@media (max-width: 640px) {
+  body.modal-open header {
+    padding-right: calc(var(--scrollbar-width, 0px) + 1rem) !important; /* px-4 */
+  }
+}
+
 
 
 
