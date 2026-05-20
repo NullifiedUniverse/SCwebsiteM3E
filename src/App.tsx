@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useLayoutEffect } from "react";
 import { motion, AnimatePresence, LayoutGroup, useScroll, useMotionValueEvent } from "motion/react";
 import { Moon, Sun, Calendar, Users, Home, Languages, Search, X } from "lucide-react";
-import { M3_SPRING, M3_EXPRESSIVE_SPRING, getPath } from "./utils/physics";
+import { M3_SPATIAL, M3E_SPATIAL, M3E_EFFECTS, M3E_EFFECTS_FAST, M3E_FAST } from "./utils/physics";
 import { ExpandedModal } from "./components/ExpandedModal";
 import { HeroSection, EventsSection, CalendarSection, CouncilSection, QuickActionsSection } from "./components/sections";
 import { useEasterEggs } from "./hooks/useEasterEggs";
 import { useAnalytics } from "./hooks/useAnalytics";
 import { useScrollNav } from "./hooks/useScrollNav";
 import { useSystemTheme } from "./hooks/useSystemTheme";
+import { AmbientParticles } from "./components/AmbientParticles";
 
 export default function App() {
   const [activeItem, setActiveItem] = useState<any>(null);
@@ -40,7 +41,6 @@ export default function App() {
   const { activeNav, setActiveNav, scrollTo } = useScrollNav();
   const trackEvent = useAnalytics(lang, darkMode);
 
-
   const { scrollY } = useScroll();
   const [isScrolled, setIsScrolled] = useState(false);
   useMotionValueEvent(scrollY, "change", (latest) => setIsScrolled(latest > 20));
@@ -49,15 +49,30 @@ export default function App() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   useEffect(() => {
-    const preventRightClick = (e: MouseEvent) => e.preventDefault();
-    document.addEventListener("contextmenu", preventRightClick);
     trackEvent("page_view", { path: window.location.pathname });
-    
-    // Easter Egg #5: Secret console message
-    console.log("%c WAHOO! %c", "padding: 10px; background: #0284c7; color: white; border-radius: 5px; font-weight: bold; font-size: 24px;", "");
-    console.log("Looks like you found the console. You're a true developer... or just a very lost student.");
 
-    return () => document.removeEventListener("contextmenu", preventRightClick);
+    // Easter Egg #5: Secret console message
+    console.log("%c WAHOO! %c", "padding: 10px; background: #005CBB; color: white; border-radius: 5px; font-weight: bold; font-size: 24px;", "");
+    console.log("Looks like you found the console. You're a true developer... or just a very lost student.");
+  }, []);
+
+  // Compositor scroll progress JS fallback for unsupported browsers
+  useEffect(() => {
+    if (typeof window !== "undefined" && !CSS.supports("animation-timeline", "scroll()")) {
+      const progress = document.getElementById("scroll-progress");
+      if (!progress) return;
+      const handleScroll = () => {
+        const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+        if (scrollable <= 0) return;
+        const scrolled = window.scrollY;
+        const progressPercentage = Math.min(Math.max(scrolled / scrollable, 0), 1);
+        progress.style.transform = `scaleX(${progressPercentage})`;
+      };
+      window.addEventListener("scroll", handleScroll, { passive: true });
+      // Run once initially to capture load state
+      handleScroll();
+      return () => window.removeEventListener("scroll", handleScroll);
+    }
   }, []);
 
   useLayoutEffect(() => {
@@ -69,9 +84,9 @@ export default function App() {
       document.body.style.paddingRight = "0px";
       document.body.style.overflow = "auto";
     }
-    return () => { 
+    return () => {
       document.body.style.paddingRight = "0px";
-      document.body.style.overflow = "auto"; 
+      document.body.style.overflow = "auto";
     };
   }, [activeItem]);
 
@@ -81,165 +96,359 @@ export default function App() {
     }
   }, [activeItem]);
 
+  const NAV_ITEMS = [
+    { id: 'home', icon: Home, label: { EN: 'Home', ZH: '首頁', PIRATE: 'Ship' } },
+    { id: 'events', icon: Calendar, label: { EN: 'Events', ZH: '活動', PIRATE: 'Raids' } },
+    { id: 'council', icon: Users, label: { EN: 'Council', ZH: '成員', PIRATE: 'Crew' } }
+  ] as const;
+
   return (
-    <div className={`min-h-screen selection:bg-blue-300 transition-colors duration-700 relative z-0 overflow-x-hidden ${partyMode ? 'bg-gradient-to-tr from-pink-300 via-purple-300 to-indigo-400 dark:from-pink-900 dark:via-purple-900 dark:to-indigo-900 animate-pulse' : 'bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100'}`}>
-      
-      {/* ORBS */}
-      <div className="absolute top-0 left-0 w-full h-[600px] overflow-hidden pointer-events-none -z-10">
-        <motion.div animate={{ x: [0, 100, 0], y: [0, 50, 0], rotate: partyMode ? [0, 360] : 0 }} transition={{ duration: partyMode ? 2 : 20, repeat: Infinity, ease: "linear" }} className={`absolute top-[-10%] left-[-10%] w-[50%] h-[50%] ${partyMode ? 'bg-pink-500/50' : 'bg-blue-400/20 dark:bg-blue-600/20'} rounded-full blur-[100px]`} />
-        <motion.div animate={{ x: [0, -100, 0], y: [0, -50, 0], rotate: partyMode ? [360, 0] : 0 }} transition={{ duration: partyMode ? 2 : 25, repeat: Infinity, ease: "linear" }} className={`absolute top-[20%] right-[-10%] w-[40%] h-[40%] ${partyMode ? 'bg-yellow-500/50' : 'bg-purple-400/20 dark:bg-purple-600/20'} rounded-full blur-[100px]`} />
+    <div
+      className={`min-h-screen relative z-0 overflow-x-hidden transition-colors duration-700 ${
+        partyMode
+          ? 'bg-gradient-to-tr from-pink-300 via-purple-300 to-indigo-400 dark:from-pink-900 dark:via-purple-900 dark:to-indigo-900 animate-pulse'
+          : ''
+      }`}
+      style={{ backgroundColor: partyMode ? undefined : 'var(--md-surface)', color: 'var(--md-on-surface)' }}
+    >
+      <AmbientParticles darkMode={darkMode} partyMode={partyMode} />
+      {/* ── Ambient Tonal Orbs ─────────────────────────────────── */}
+      <div className="absolute top-0 left-0 w-full h-[700px] overflow-hidden pointer-events-none -z-10" aria-hidden="true">
+        <motion.div
+          animate={{ x: [0, 80, 0], y: [0, 40, 0], rotate: partyMode ? [0, 360] : 0 }}
+          transition={{ duration: partyMode ? 2 : 22, repeat: Infinity, ease: "linear" }}
+          className="absolute top-[-12%] left-[-8%] w-[48%] h-[48%] rounded-full blur-[120px]"
+          style={{ backgroundColor: partyMode ? 'rgba(236,72,153,0.45)' : 'color-mix(in srgb, var(--md-primary) 18%, transparent)' }}
+        />
+        <motion.div
+          animate={{ x: [0, -80, 0], y: [0, -40, 0], rotate: partyMode ? [360, 0] : 0 }}
+          transition={{ duration: partyMode ? 2 : 28, repeat: Infinity, ease: "linear" }}
+          className="absolute top-[18%] right-[-8%] w-[38%] h-[38%] rounded-full blur-[120px]"
+          style={{ backgroundColor: partyMode ? 'rgba(234,179,8,0.45)' : 'color-mix(in srgb, var(--md-tertiary) 15%, transparent)' }}
+        />
       </div>
 
-      {/* M3 Scroll Elevation App Bar */}
-      <motion.header 
-        initial={{ y: -100 }} animate={{ y: 0 }} transition={{ type: "spring", stiffness: 300, damping: 25 }}
-        className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 sm:px-6 py-4 transition-all duration-500 ${isScrolled ? "bg-slate-50/95 dark:bg-slate-950/95 shadow-[0_1px_3px_rgba(0,0,0,0.08)] dark:shadow-[0_1px_3px_rgba(0,0,0,0.3)]" : "bg-transparent"}`}
+      {/* ── M3E Top App Bar ──────────────────────────────────────
+          States:
+          • Flat   (top):     surface bg, no elevation
+          • Scroll (≥20px):   surfaceContainer + Elevation 2 shadow
+          Height: 64dp (var(--md-top-app-bar-height))
+      ──────────────────────────────────────────────────────────── */}
+      <motion.header
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ type: "spring", stiffness: 280, damping: 26 }}
+        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 sm:px-6 transition-all duration-300"
+        style={{
+          height: 'var(--md-top-app-bar-height)',
+          backgroundColor: isScrolled ? 'var(--md-surface-container)' : 'var(--md-surface)',
+          boxShadow: isScrolled
+            ? `0 1px 2px var(--md-shadow), 0 2px 6px 2px var(--md-shadow), inset 0 0 0 9999px var(--md-elevation-2)`
+            : 'none',
+        }}
+        role="banner"
       >
-        {/* Left: Logo */}
+        {/* Leading: Logo */}
         <div className="flex items-center">
-          <motion.img 
-            src={darkMode ? "https://web.kcislk.ntpc.edu.tw/wp-content/uploads/2023/07/KCISLK-logo-W.png" : "https://web.kcislk.ntpc.edu.tw/wp-content/uploads/2023/07/KCISLK-logo-B.png"}
-            alt="KCISLK Logo" 
+          <motion.img
+            src={darkMode
+              ? "https://web.kcislk.ntpc.edu.tw/wp-content/uploads/2023/07/KCISLK-logo-W.png"
+              : "https://web.kcislk.ntpc.edu.tw/wp-content/uploads/2023/07/KCISLK-logo-B.png"
+            }
+            alt="KCISLK Logo"
             onClick={() => {
               setLogoClicks(c => c + 1);
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
             animate={logoClicks > 4 ? { rotate: 360 * (logoClicks - 4) } : {}}
-            whileTap={{ scale: 0.9 }}
-            style={{ filter: darkMode ? 'brightness(1) opacity(0.9)' : undefined, cursor: logoClicks > 4 ? 'crosshair' : 'pointer' }}
-            className="h-8 sm:h-10 object-contain dark:drop-shadow-sm transition-all duration-700" 
+            whileTap={{ scale: 0.92 }}
+            style={{
+              filter: darkMode ? 'brightness(0.95) opacity(0.92)' : undefined,
+              cursor: logoClicks > 4 ? 'crosshair' : 'pointer',
+            }}
+            className="h-8 sm:h-9 object-contain transition-all duration-500"
+            loading="eager"
+            // @ts-ignore
+            fetchPriority="high"
           />
         </div>
 
-        {/* Right: Controls & Search */}
-        <div className="flex items-center justify-end">
-          <div className="flex items-center bg-slate-100 dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800/60 overflow-hidden h-10">
-            
-            {/* Search button — always visible, icon morphs */}
+        {/* Trailing: Controls — restructured to avoid overflow-hidden clipping issues */}
+        <div className="flex items-center gap-1.5">
+
+          {/* ── Search pill — expands independently ── */}
+          <motion.div
+            layout
+            className="flex items-center rounded-full h-10"
+            style={{
+              backgroundColor: 'var(--md-surface-container-high)',
+              border: `1px solid var(--md-outline-variant)`,
+              overflow: 'hidden',
+            }}
+          >
+            {/* Search icon toggle */}
             <motion.button
-              onClick={() => { 
-                if (isSearchOpen) { setIsSearchOpen(false); setSearchQuery(""); } 
-                else { setIsSearchOpen(true); } 
+              id="search-toggle"
+              onClick={() => {
+                if (isSearchOpen) { setIsSearchOpen(false); setSearchQuery(""); }
+                else { setIsSearchOpen(true); }
               }}
-              className="flex items-center justify-center w-10 h-10 shrink-0 cursor-pointer text-slate-600 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.9 }}
+              className="flex items-center justify-center w-10 h-10 shrink-0 cursor-pointer"
+              style={{ color: isSearchOpen ? 'var(--md-primary)' : 'var(--md-on-surface-variant)' }}
+              whileHover={{ backgroundColor: 'color-mix(in srgb, var(--md-primary-container) 60%, transparent)' } as any}
+              whileTap={{ scale: 0.88 }}
+              transition={M3E_EFFECTS}
               aria-label={isSearchOpen ? "Close search" : "Open search"}
+              aria-expanded={isSearchOpen}
             >
               <AnimatePresence mode="wait" initial={false}>
                 {isSearchOpen ? (
-                  <motion.div key="x" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ type: "spring", stiffness: 300, damping: 20 }}>
-                    <X size={18} />
+                  <motion.div key="x" initial={{ rotate: -90, opacity: 0, scale: 0.7 }} animate={{ rotate: 0, opacity: 1, scale: 1 }} exit={{ rotate: 90, opacity: 0, scale: 0.7 }} transition={M3E_EFFECTS_FAST}>
+                    <X size={17} />
                   </motion.div>
                 ) : (
-                  <motion.div key="s" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} transition={{ type: "spring", stiffness: 300, damping: 20 }}>
-                    <Search size={18} />
+                  <motion.div key="s" initial={{ rotate: 90, opacity: 0, scale: 0.7 }} animate={{ rotate: 0, opacity: 1, scale: 1 }} exit={{ rotate: -90, opacity: 0, scale: 0.7 }} transition={M3E_EFFECTS_FAST}>
+                    <Search size={17} />
                   </motion.div>
                 )}
               </AnimatePresence>
             </motion.button>
 
-            {/* Search input — expands when open */}
-            <motion.div 
+            {/* Expanding search text field */}
+            <motion.div
               initial={false}
-              animate={{ width: isSearchOpen ? 260 : 0, opacity: isSearchOpen ? 1 : 0 }}
-              transition={M3_EXPRESSIVE_SPRING}
-              className="overflow-hidden flex items-center"
+              animate={{ width: isSearchOpen ? 200 : 0 }}
+              transition={M3E_SPATIAL}
+              className="flex items-center overflow-hidden"
+              style={{ minWidth: 0 }}
             >
-              <input 
-                ref={(el) => { if (el && isSearchOpen) el.focus(); }}
-                type="text" 
-                placeholder={lang === "ZH" ? "搜尋成員..." : "Search members..."} 
-                value={searchQuery} 
-                onChange={(e) => setSearchQuery(e.target.value)} 
+              <input
+                id="search-input"
+                ref={(el) => { if (el && isSearchOpen) setTimeout(() => el.focus(), 120); }}
+                type="text"
+                placeholder={lang === "ZH" ? "搜尋成員…" : "Search members…"}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Escape') { setIsSearchOpen(false); setSearchQuery(""); } }}
-                className="bg-transparent border-none outline-none text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 w-full pr-3"
+                className="bg-transparent border-none outline-none w-full pl-1 pr-4 md-label-medium"
+                style={{ color: 'var(--md-on-surface)', minWidth: 0 }}
+                aria-label="Search council members"
               />
             </motion.div>
+          </motion.div>
 
-            {/* Divider + Lang + Divider + Theme — collapse when search open */}
-            <motion.div 
-              initial={false}
-              animate={{ width: isSearchOpen ? 0 : "auto", opacity: isSearchOpen ? 0 : 1 }}
-              transition={M3_EXPRESSIVE_SPRING}
-              className="flex items-center overflow-hidden shrink-0"
+          {/* ── Lang + Theme controls group — separate pill, slides away on search ── */}
+          <motion.div
+            initial={false}
+            animate={{ opacity: isSearchOpen ? 0 : 1, x: isSearchOpen ? 12 : 0, scale: isSearchOpen ? 0.9 : 1 }}
+            transition={M3E_EFFECTS}
+            style={{ pointerEvents: isSearchOpen ? 'none' : 'auto' }}
+            className="flex items-center rounded-full h-10"
+          >
+            {/* Language toggle */}
+            <motion.button
+              id="lang-toggle"
+              whileHover={{ backgroundColor: 'color-mix(in srgb, var(--md-primary-container) 70%, transparent)' } as any}
+              whileTap={{ scale: 0.92 }}
+              animate={{ borderRadius: 'var(--md-shape-full)' }}
+              transition={M3E_EFFECTS}
+              onClick={() => {
+                setLangClicks(c => c + 1);
+                if (langClicks === 6) setLang("PIRATE");
+                else setLang(lang === "EN" ? "ZH" : "EN");
+                trackEvent("toggle_lang", { to: lang === "EN" ? "ZH" : "EN" });
+              }}
+              className="flex items-center gap-1.5 h-10 px-4 cursor-pointer shrink-0 whitespace-nowrap md-label-large"
+              style={{
+                color: 'var(--md-on-surface-variant)',
+                backgroundColor: 'var(--md-surface-container-high)',
+                border: `1px solid var(--md-outline-variant)`,
+                borderRadius: 'var(--md-shape-full)',
+              }}
+              aria-label="Toggle Language"
             >
-              <div className="w-px h-5 bg-slate-300/70 dark:bg-slate-700 shrink-0" />
-              <motion.button 
-                whileHover={{ scale: 1.05, backgroundColor: darkMode ? '#1e293b' : '#e2e8f0' }} 
-                whileTap={{ scale: 0.95 }} 
-                onClick={() => { setLangClicks(c => c + 1); if (langClicks === 6) setLang("PIRATE"); else setLang(lang === "EN" ? "ZH" : "EN"); trackEvent("toggle_lang", { to: lang === "EN" ? "ZH" : "EN" }); }} 
-                className="flex items-center gap-1.5 px-3 py-1.5 font-bold cursor-pointer text-slate-700 dark:text-slate-300 text-sm rounded-xl shrink-0 whitespace-nowrap" 
-                aria-label="Toggle Language"
-              ><Languages size={15} />{lang}</motion.button>
-              <div className="w-px h-5 bg-slate-300/70 dark:bg-slate-700 shrink-0" />
-              <motion.button 
-                initial={false}
-                animate={darkMode ? { rotate: 180 } : { rotate: 0 }}
-                whileHover={{ scale: 1.1, backgroundColor: darkMode ? '#1e293b' : '#e2e8f0' }} 
-                whileTap={{ scale: 0.85 }} 
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                onClick={() => { setDarkMode(!darkMode); trackEvent("toggle_theme", { to: !darkMode ? "dark" : "light" }); }} 
-                className="flex items-center justify-center w-9 h-9 cursor-pointer text-slate-700 dark:text-slate-300 rounded-xl shrink-0" 
-                aria-label="Toggle Dark Mode"
-              >{darkMode ? <Sun size={17} /> : <Moon size={17} />}</motion.button>
-            </motion.div>
+              <Languages size={14} />
+              <motion.span key={lang} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={M3E_EFFECTS}>
+                {lang}
+              </motion.span>
+            </motion.button>
 
-          </div>
+            <div className="w-2" />
+
+            {/* Theme toggle */}
+            <motion.button
+              id="theme-toggle"
+              initial={false}
+              whileHover={{ backgroundColor: 'color-mix(in srgb, var(--md-primary-container) 70%, transparent)' } as any}
+              whileTap={{ scale: 0.88 }}
+              transition={M3E_EFFECTS}
+              onClick={() => { setDarkMode(!darkMode); trackEvent("toggle_theme", { to: !darkMode ? "dark" : "light" }); }}
+              className="flex items-center justify-center w-10 h-10 cursor-pointer shrink-0"
+              style={{
+                color: 'var(--md-on-surface-variant)',
+                backgroundColor: 'var(--md-surface-container-high)',
+                border: `1px solid var(--md-outline-variant)`,
+                borderRadius: 'var(--md-shape-full)',
+              }}
+              aria-label="Toggle Dark Mode"
+            >
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={darkMode ? 'sun' : 'moon'}
+                  initial={{ rotate: -45, opacity: 0, scale: 0.7 }}
+                  animate={{ rotate: 0, opacity: 1, scale: 1 }}
+                  exit={{ rotate: 45, opacity: 0, scale: 0.7 }}
+                  transition={M3E_EFFECTS_FAST}
+                >
+                  {darkMode ? <Sun size={16} /> : <Moon size={16} />}
+                </motion.div>
+              </AnimatePresence>
+            </motion.button>
+          </motion.div>
         </div>
+        {/* ── Scroll Progress Indicator (M3E expressive) ── */}
+        <div
+          id="scroll-progress"
+          aria-hidden="true"
+          className="absolute bottom-0 left-0 right-0 h-[3px] origin-left bg-gradient-to-r from-[var(--md-primary)] via-[var(--md-tertiary)] to-[var(--md-primary)] transition-transform duration-75 ease-out"
+          style={{ transform: 'scaleX(0)' }}
+        />
       </motion.header>
 
       <LayoutGroup id="main-content">
+        {/* ── M3E Navigation Bar ────────────────────────────────────
+            Desktop: Floating pill (expressive) at bottom-6
+            Mobile:  Full-width surface, flush at bottom
+            Active indicator: 64×32dp pill behind icon only (M3E spec)
+        ─────────────────────────────────────────────────────────── */}
         <LayoutGroup id="navbar">
-          <div className="fixed bottom-6 left-0 right-0 z-40 flex justify-center pointer-events-none">
-            <motion.nav 
-              initial={{ y: 50, opacity: 0 }} 
-              animate={{ y: 0, opacity: 1 }} 
-              transition={{ type: "spring", stiffness: 300, damping: 25, delay: 0.4 }} 
-              className="bg-white dark:bg-slate-900 p-2 rounded-full flex gap-1 shadow-[0_4px_24px_rgba(0,0,0,0.12)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.4)] border border-slate-200/40 dark:border-slate-800/60 pointer-events-auto" 
+          {/* Mobile: Full-width bottom nav bar (≤ 640px) */}
+          <motion.nav
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ type: "spring", stiffness: 280, damping: 26, delay: 0.35 }}
+            className="fixed bottom-0 left-0 right-0 z-40 flex justify-around items-end sm:hidden"
+            style={{
+              backgroundColor: 'var(--md-surface-container)',
+              boxShadow: `0 -1px 2px var(--md-shadow), inset 0 0 0 9999px var(--md-elevation-2)`,
+              paddingBottom: 'max(8px, env(safe-area-inset-bottom))',
+              paddingTop: '12px',
+            }}
+            aria-label="Main Navigation"
+          >
+            {NAV_ITEMS.map((nav) => {
+              const isActive = activeNav === nav.id;
+              return (
+                <motion.button
+                  key={nav.id}
+                  layout
+                  onClick={() => { scrollTo(nav.id); setActiveNav(nav.id); trackEvent("nav_click", { destination: nav.id }); }}
+                  className="cursor-pointer flex flex-col items-center gap-1 px-4 py-1 relative min-w-[64px]"
+                  whileHover="hover"
+                  whileTap="tap"
+                  aria-label={`Navigate to ${nav.label.EN}`}
+                  aria-current={isActive ? "page" : undefined}
+                >
+                  {/* M3E active indicator: 64×32dp pill behind icon */}
+                  <div className="relative w-16 h-8 flex items-center justify-center">
+                    {isActive && (
+                      <motion.div
+                        layoutId="nav-indicator-mobile"
+                        className="absolute inset-0 rounded-full"
+                        style={{ backgroundColor: 'var(--md-secondary-container)' }}
+                        transition={M3E_FAST}
+                      />
+                    )}
+                    <motion.div
+                      variants={{ hover: { y: -2, scale: 1.1 }, tap: { scale: 0.88 } }}
+                      transition={M3E_FAST}
+                      className="relative z-10"
+                      style={{ color: isActive ? 'var(--md-on-secondary-container)' : 'var(--md-on-surface-variant)' }}
+                    >
+                      <nav.icon size={22} strokeWidth={isActive ? 2 : 1.75} />
+                    </motion.div>
+                  </div>
+                  {/* Label — always visible on mobile nav bar per M3E spec */}
+                  <span
+                    className="md-label-medium text-center transition-colors duration-200"
+                    style={{ color: isActive ? 'var(--md-on-surface)' : 'var(--md-on-surface-variant)', fontVariationSettings: isActive ? '"wght" 700' : '"wght" 500' }}
+                  >
+                    {nav.label[lang as keyof typeof nav.label] || nav.label.EN}
+                  </span>
+                </motion.button>
+              );
+            })}
+          </motion.nav>
+
+          {/* Desktop: Floating pill nav (≥ 640px) — M3E Expressive variant */}
+          <div className="hidden sm:flex fixed bottom-6 left-0 right-0 z-40 justify-center pointer-events-none">
+            <motion.nav
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ type: "spring", stiffness: 280, damping: 26, delay: 0.4 }}
+              className="p-1.5 rounded-full flex gap-0.5 pointer-events-auto"
+              style={{
+                backgroundColor: 'var(--md-surface-container-high)',
+                boxShadow: `0 4px 24px var(--md-shadow), 0 1px 4px var(--md-shadow), inset 0 0 0 9999px var(--md-elevation-2)`,
+                border: `1px solid var(--md-outline-variant)`,
+              }}
               aria-label="Main Navigation"
             >
-              {[
-                { id: 'home', icon: Home, label: { EN: 'Home', ZH: '首頁', PIRATE: 'Yer Ship' } }, 
-                { id: 'events', icon: Calendar, label: { EN: 'Events', ZH: '活動資訊', PIRATE: 'Mutinies' } }, 
-                { id: 'council', icon: Users, label: { EN: 'Council', ZH: '學生會成員', PIRATE: 'Crew' } }
-              ].map((nav) => {
+              {NAV_ITEMS.map((nav) => {
                 const isActive = activeNav === nav.id;
                 return (
-                  <motion.button 
-                    key={nav.id} 
-                    layout
+                  <motion.button
+                    key={nav.id}
                     whileHover="hover"
                     whileTap="tap"
-                    transition={M3_SPRING}
-                    onClick={() => { scrollTo(nav.id); setActiveNav(nav.id); trackEvent("nav_click", { destination: nav.id }); }} 
-                    aria-label={`Navigate to ${nav.id}`}
-                    className={`cursor-pointer relative flex items-center justify-center h-12 rounded-full transition-colors z-10 overflow-hidden ${isActive ? 'text-blue-600 dark:text-blue-400 px-5 sm:px-6' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 px-4'}`}
+                    transition={M3_SPATIAL}
+                    onClick={() => { scrollTo(nav.id); setActiveNav(nav.id); trackEvent("nav_click", { destination: nav.id }); }}
+                    aria-label={`Navigate to ${nav.label.EN}`}
+                    aria-current={isActive ? "page" : undefined}
+                    className="cursor-pointer relative flex items-center justify-center h-12 rounded-full overflow-hidden transition-colors z-10"
+                    style={{
+                      paddingLeft: isActive ? '20px' : '16px',
+                      paddingRight: isActive ? '20px' : '16px',
+                      color: isActive ? 'var(--md-on-secondary-container)' : 'var(--md-on-surface-variant)',
+                    }}
                   >
-                    {isActive && <motion.div layoutId="nav-indicator" className="absolute inset-0 bg-blue-100/80 dark:bg-blue-900/30 rounded-full shadow-sm shadow-blue-200/50 dark:shadow-none z-[-1]" transition={M3_SPRING} />}
-                    <motion.div layout className="flex items-center">
-                      <motion.div variants={{ initial: { scale: 1, y: 0 }, hover: { scale: 1.1, y: -2 }, tap: { scale: 0.95 } }} transition={{ type: "spring", stiffness: 400, damping: 20 }}>
-                        <nav.icon size={20} className={`shrink-0 transition-transform ${isActive ? 'scale-110' : ''}`} />
+                    {isActive && (
+                      <motion.div
+                        layoutId="nav-indicator-desktop"
+                        className="absolute inset-0 rounded-full"
+                        style={{ backgroundColor: 'var(--md-secondary-container)' }}
+                        transition={M3E_FAST}
+                      />
+                    )}
+                    <motion.div className="flex items-center gap-0">
+                      <motion.div
+                        variants={{ hover: { scale: 1.12, y: -2 }, tap: { scale: 0.9 } }}
+                        transition={M3E_FAST}
+                        className="relative z-10"
+                      >
+                        <nav.icon size={20} strokeWidth={isActive ? 2 : 1.75} />
                       </motion.div>
                       <AnimatePresence mode="wait">
                         {isActive && (
-                          <motion.div 
-                            key={lang} 
-                            initial={{ opacity: 0, width: 0 }} 
-                            animate={{ opacity: 1, width: "auto" }} 
-                            exit={{ opacity: 0, width: 0 }} 
-                            transition={M3_SPRING} 
-                            className="overflow-hidden whitespace-nowrap flex items-center text-xs"
+                          <motion.div
+                            key={lang}
+                            initial={{ opacity: 0, width: 0 }}
+                            animate={{ opacity: 1, width: "auto" }}
+                            exit={{ opacity: 0, width: 0 }}
+                            transition={M3E_SPATIAL}
+                            className="overflow-hidden whitespace-nowrap flex items-center relative z-10"
                           >
-                            <motion.span 
-                              variants={{ 
-                                initial: { fontVariationSettings: '"wght" 700', x: 0 }, 
-                                hover: { fontVariationSettings: '"wght" 900', x: 1 }, 
-                                tap: { fontVariationSettings: '"wght" 500', x: -1 } 
-                              }} 
-                              transition={{ type: "spring", stiffness: 500, damping: 25 }} 
-                              className="pl-2 uppercase tracking-widest font-bold block" 
-                              style={{ fontSize: (lang === 'ZH') ? '0.65rem' : undefined }}
+                            <motion.span
+                              variants={{
+                                hover: { fontVariationSettings: '"wght" 750' },
+                                tap: { fontVariationSettings: '"wght" 500' }
+                              }}
+                              transition={M3E_EFFECTS}
+                              className="pl-2 md-label-large uppercase tracking-widest block"
+                              style={{
+                                fontSize: lang === 'ZH' ? '0.65rem' : undefined,
+                                fontVariationSettings: '"wght" 700',
+                              }}
                             >
                               {nav.label[lang as keyof typeof nav.label] || nav.label.EN}
                             </motion.span>
@@ -254,20 +463,22 @@ export default function App() {
           </div>
         </LayoutGroup>
 
-        <main className="max-w-[1440px] w-full mx-auto px-4 sm:px-8 lg:px-12 space-y-32 pt-40 md:pt-48 pb-48 relative z-10">
-          
-          <HeroSection 
-            lang={lang} 
-            darkMode={darkMode} 
-            activeItem={activeItem} 
+        <main
+          className="max-w-[1440px] w-full mx-auto px-4 sm:px-8 lg:px-12 pt-40 md:pt-44 pb-40 sm:pb-24 relative z-10"
+          style={{ display: 'flex', flexDirection: 'column', gap: '72px' }}
+        >
+          <HeroSection
+            lang={lang}
+            darkMode={darkMode}
+            activeItem={activeItem}
             setActiveItem={setActiveItem}
             closingItemId={closingItemId}
           />
 
-          <EventsSection 
-            lang={lang} 
-            darkMode={darkMode} 
-            activeItem={activeItem} 
+          <EventsSection
+            lang={lang}
+            darkMode={darkMode}
+            activeItem={activeItem}
             setActiveItem={setActiveItem}
             closingItemId={closingItemId}
           />
@@ -279,34 +490,45 @@ export default function App() {
             setActiveItem={setActiveItem}
           />
 
-          <CouncilSection 
-            lang={lang} 
-            darkMode={darkMode} 
-            activeItem={activeItem} 
-            setActiveItem={setActiveItem} 
-            activeGen={activeGen} 
-            setActiveGen={setActiveGen} 
-            activeFilter={activeFilter} 
-            setActiveFilter={setActiveFilter} 
+          <CouncilSection
+            lang={lang}
+            darkMode={darkMode}
+            activeItem={activeItem}
+            setActiveItem={setActiveItem}
+            activeGen={activeGen}
+            setActiveGen={setActiveGen}
+            activeFilter={activeFilter}
+            setActiveFilter={setActiveFilter}
             trackEvent={trackEvent}
             searchQuery={searchQuery}
+            closingItemId={closingItemId}
           />
 
-          <QuickActionsSection 
-            lang={lang} 
-          />
-
+          <QuickActionsSection lang={lang} />
         </main>
 
         <AnimatePresence onExitComplete={() => setClosingItemId(null)}>
-          {activeItem && <ExpandedModal activeItem={activeItem} setActiveItem={(item: any) => { if (!item && activeItem) setClosingItemId(activeItem.id); setActiveItem(item); }} darkMode={darkMode} lang={lang} />}
+          {activeItem && (
+            <motion.div
+              key={`modal-wrapper-${activeItem.id}`}
+              className="fixed inset-0"
+              style={{ zIndex: 49, pointerEvents: activeItem ? "auto" : "none" }}
+            >
+              <ExpandedModal
+                activeItem={activeItem}
+                setActiveItem={(item: any) => {
+                  if (!item && activeItem) setClosingItemId(activeItem.id);
+                  setActiveItem(item);
+                }}
+                darkMode={darkMode}
+                lang={lang}
+              />
+            </motion.div>
+          )}
         </AnimatePresence>
       </LayoutGroup>
-
-      <style dangerouslySetInnerHTML={{__html: `
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-      `}} />
     </div>
   );
 }
+
+

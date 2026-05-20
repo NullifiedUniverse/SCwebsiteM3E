@@ -9,15 +9,437 @@
   --font-mono: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
+/* ─────────────────────────────────────────────────────────────
+   M3 EXPRESSIVE — CSS CUSTOM PROPERTY TOKEN SYSTEM
+   All components must reference these tokens, not raw hex values.
+───────────────────────────────────────────────────────────────*/
+
+:root {
+  /* ── Color Roles — Light ── */
+  --md-primary:                  #005CBB;
+  --md-on-primary:               #ffffff;
+  --md-primary-container:        #D7E3FF;
+  --md-on-primary-container:     #001B3F;
+  --md-secondary:                #575E71;
+  --md-on-secondary:             #ffffff;
+  --md-secondary-container:      #DBE2F9;
+  --md-on-secondary-container:   #141B2C;
+  --md-tertiary:                 #715573;
+  --md-on-tertiary:              #ffffff;
+  --md-tertiary-container:       #FBD7FC;
+  --md-on-tertiary-container:    #2A102D;
+  --md-error:                    #BA1A1A;
+  --md-on-error:                 #ffffff;
+  --md-error-container:          #FFDAD6;
+  --md-on-error-container:       #410002;
+
+  /* ── Surface Hierarchy — Light ── */
+  --md-surface:                  #F9F9FF;
+  --md-surface-dim:              #D8D9E4;
+  --md-surface-bright:           #F9F9FF;
+  --md-surface-container-lowest: #ffffff;
+  --md-surface-container-low:    #F3F3FA;
+  --md-surface-container:        #EDEDF4;
+  --md-surface-container-high:   #E7E7EF;
+  --md-surface-container-highest:#E2E2E9;
+  --md-on-surface:               #1A1B20;
+  --md-on-surface-variant:       #44474E;
+  --md-inverse-surface:          #2F3036;
+  --md-inverse-on-surface:       #F1F0F7;
+  --md-inverse-primary:          #ADC6FF;
+
+  /* ── Outline & Scrim — Light ── */
+  --md-outline:                  #74777F;
+  --md-outline-variant:          #C4C6D0;
+  --md-scrim:                    rgba(0,0,0,0.32);
+  --md-shadow:                   rgba(0,0,0,0.10);
+
+  /* ── Shape Scale Tokens (dp) ── */
+  --md-shape-none:               0px;
+  --md-shape-extra-small:        4px;
+  --md-shape-small:              8px;
+  --md-shape-medium:             12px;
+  --md-shape-large:              16px;
+  --md-shape-extra-large:        28px;
+  --md-shape-extra-extra-large:  32px;
+  --md-shape-full:               9999px;
+
+  /* ── Elevation Overlays (primary tint at % opacity) ── */
+  --md-elevation-1: rgba(0, 92, 187, 0.05);
+  --md-elevation-2: rgba(0, 92, 187, 0.08);
+  --md-elevation-3: rgba(0, 92, 187, 0.11);
+  --md-elevation-4: rgba(0, 92, 187, 0.12);
+  --md-elevation-5: rgba(0, 92, 187, 0.14);
+
+  /* ── Nav Bar Height ── */
+  --md-nav-bar-height: 80px;
+  --md-top-app-bar-height: 64px;
+}
+
+/* Dark mode token overrides */
+.dark {
+  --md-primary:                  #ADC6FF;
+  --md-on-primary:               #002E6C;
+  --md-primary-container:        #00458F;
+  --md-on-primary-container:     #D7E3FF;
+  --md-secondary:                #BFC6DC;
+  --md-on-secondary:             #293041;
+  --md-secondary-container:      #3F4759;
+  --md-on-secondary-container:   #DBE2F9;
+  --md-tertiary:                 #DEBAe0;
+  --md-on-tertiary:              #402643;
+  --md-tertiary-container:       #593D5B;
+  --md-on-tertiary-container:    #FBD7FC;
+  --md-error:                    #FFB4AB;
+  --md-on-error:                 #690005;
+  --md-error-container:          #93000A;
+  --md-on-error-container:       #FFDAD6;
+
+  --md-surface:                  #111318;
+  --md-surface-dim:              #111318;
+  --md-surface-bright:           #37393E;
+  --md-surface-container-lowest: #0C0E13;
+  --md-surface-container-low:    #191C21;
+  --md-surface-container:        #1D2024;
+  --md-surface-container-high:   #272A2F;
+  --md-surface-container-highest:#32353A;
+  --md-on-surface:               #E2E2E9;
+  --md-on-surface-variant:       #C4C6D0;
+  --md-inverse-surface:          #E2E2E9;
+  --md-inverse-on-surface:       #2F3036;
+  --md-inverse-primary:          #005CBB;
+
+  --md-outline:                  #8E9099;
+  --md-outline-variant:          #44474E;
+  --md-scrim:                    rgba(0,0,0,0.40);
+  --md-shadow:                   rgba(0,0,0,0.30);
+
+  --md-elevation-1: rgba(173, 198, 255, 0.05);
+  --md-elevation-2: rgba(173, 198, 255, 0.08);
+  --md-elevation-3: rgba(173, 198, 255, 0.11);
+  --md-elevation-4: rgba(173, 198, 255, 0.12);
+  --md-elevation-5: rgba(173, 198, 255, 0.14);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   M3E TYPE SCALE UTILITY CLASSES
+   Based on Material 3 Expressive type scale, using Roboto Flex
+   variable axes: wght, opsz, GRAD, wdth, slnt
+───────────────────────────────────────────────────────────────*/
+
 @layer base {
   body {
-    @apply antialiased text-slate-900 bg-white dark:bg-slate-950 dark:text-slate-100;
+    @apply antialiased;
+    background-color: var(--md-surface);
+    color: var(--md-on-surface);
     font-family: var(--font-sans);
-    font-variation-settings: "wdth" 100, "wght" 400, "opsz" 18;
+    font-variation-settings: "wdth" 100, "wght" 400, "opsz" 16;
+    font-size: 14px;
+    line-height: 20px;
   }
+
   h1, h2, h3, h4, h5, h6 {
-    font-variation-settings: "wdth" 95, "wght" 700, "opsz" 48, "GRAD" 50;
-    @apply tracking-tighter;
+    font-variation-settings: "wdth" 95, "wght" 700, "opsz" 36, "GRAD" 50;
+    letter-spacing: -0.02em;
+  }
+
+  /* Prevent horizontal scrollbar during layout animations */
+  html { overflow-x: hidden; }
+
+  /* Focus ring — M3E spec: 3dp outline in secondary color */
+  :focus-visible {
+    outline: 3px solid var(--md-secondary);
+    outline-offset: 2px;
+    border-radius: 4px;
   }
 }
+
+/* Display styles — hero headlines, major brand moments */
+.md-display-large {
+  font-size: clamp(45px, 6vw, 57px);
+  line-height: 1.12;
+  letter-spacing: -0.25px;
+  font-variation-settings: "wght" 400, "opsz" 48, "GRAD" 50, "wdth" 100;
+}
+.md-display-medium {
+  font-size: clamp(36px, 5vw, 45px);
+  line-height: 1.15;
+  letter-spacing: 0px;
+  font-variation-settings: "wght" 400, "opsz" 40, "GRAD" 50, "wdth" 100;
+}
+.md-display-small {
+  font-size: clamp(30px, 4vw, 36px);
+  line-height: 1.18;
+  font-variation-settings: "wght" 400, "opsz" 36, "GRAD" 50, "wdth" 100;
+}
+
+/* Headline styles — section titles, card headers */
+.md-headline-large {
+  font-size: 32px;
+  line-height: 40px;
+  letter-spacing: 0px;
+  font-variation-settings: "wght" 600, "opsz" 32, "GRAD" 50, "wdth" 95;
+}
+.md-headline-medium {
+  font-size: 28px;
+  line-height: 36px;
+  font-variation-settings: "wght" 600, "opsz" 28, "GRAD" 50, "wdth" 95;
+}
+.md-headline-small {
+  font-size: 24px;
+  line-height: 32px;
+  font-variation-settings: "wght" 600, "opsz" 24, "GRAD" 50, "wdth" 95;
+}
+
+/* Title styles — list items, dialog titles */
+.md-title-large {
+  font-size: 22px;
+  line-height: 28px;
+  letter-spacing: 0px;
+  font-variation-settings: "wght" 500, "opsz" 20, "wdth" 100;
+}
+.md-title-medium {
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0.15px;
+  font-variation-settings: "wght" 500, "opsz" 16, "wdth" 100;
+}
+.md-title-small {
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0.1px;
+  font-variation-settings: "wght" 500, "opsz" 14, "wdth" 100;
+}
+
+/* Body styles — paragraphs, descriptions */
+.md-body-large {
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0.5px;
+  font-variation-settings: "wght" 400, "opsz" 16, "wdth" 100;
+}
+.md-body-medium {
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0.25px;
+  font-variation-settings: "wght" 400, "opsz" 14, "wdth" 100;
+}
+.md-body-small {
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.4px;
+  font-variation-settings: "wght" 400, "opsz" 12, "wdth" 100;
+}
+
+/* Label styles — buttons, chips, overlines */
+.md-label-large {
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0.1px;
+  font-variation-settings: "wght" 500, "opsz" 14, "wdth" 100;
+}
+.md-label-medium {
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.5px;
+  font-variation-settings: "wght" 500, "opsz" 12, "wdth" 100;
+}
+.md-label-small {
+  font-size: 11px;
+  line-height: 16px;
+  letter-spacing: 0.5px;
+  font-variation-settings: "wght" 500, "opsz" 11, "wdth" 100;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   UTILITY CLASSES
+───────────────────────────────────────────────────────────────*/
+
+/* Scrollbar suppression */
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* M3E tonal surface with elevation overlay */
+.md-surface-elevated-1 {
+  background-color: var(--md-surface-container-low);
+  box-shadow: 0 1px 2px var(--md-shadow), inset 0 0 0 9999px var(--md-elevation-1);
+}
+.md-surface-elevated-2 {
+  background-color: var(--md-surface-container);
+  box-shadow: 0 1px 2px var(--md-shadow), 0 2px 6px 2px var(--md-shadow), inset 0 0 0 9999px var(--md-elevation-2);
+}
+.md-surface-elevated-3 {
+  background-color: var(--md-surface-container-high);
+  box-shadow: 0 4px 8px 3px var(--md-shadow), 0 1px 3px var(--md-shadow), inset 0 0 0 9999px var(--md-elevation-3);
+}
+
+/* Selection color */
+::selection {
+  background-color: var(--md-primary-container);
+  color: var(--md-on-primary-container);
+}
+
+/* Native scroll-driven progress bar */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: scroll()) {
+    @keyframes grow-progress {
+      from { transform: scaleX(0); }
+      to { transform: scaleX(1); }
+    }
+    #scroll-progress {
+      transform-origin: 0 50%;
+      animation: grow-progress auto linear;
+      animation-timeline: scroll();
+    }
+  }
+}
+
+/* Layout stability scrollbar utility */
+.scrollbar-gutter-stable {
+  scrollbar-gutter: stable;
+}
+
+/* Scroll-driven horizontal entries & exits for member cards */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    @keyframes member-enter {
+      from {
+        opacity: 0;
+        transform: perspective(1000px) rotateY(20deg) scale(0.85) translateX(40px);
+        filter: blur(4px);
+      }
+      to {
+        opacity: 1;
+        transform: perspective(1000px) rotateY(0deg) scale(1) translateX(0);
+        filter: blur(0);
+      }
+    }
+
+    @keyframes member-exit {
+      from {
+        opacity: 1;
+        transform: perspective(1000px) rotateY(0deg) scale(1) translateX(0);
+        filter: blur(0);
+      }
+      to {
+        opacity: 0;
+        transform: perspective(1000px) rotateY(-20deg) scale(0.85) translateX(-40px);
+        filter: blur(4px);
+      }
+    }
+
+    .member-scroll-item {
+      view-timeline-name: --member-reveal;
+      view-timeline-axis: inline;
+      transform-style: preserve-3d;
+      backface-visibility: hidden;
+      animation: member-enter both, member-exit both;
+      animation-timeline: --member-reveal, --member-reveal;
+      animation-range: entry 0% entry 80%, exit 20% exit 100%;
+      transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.5s ease, opacity 0.5s ease;
+    }
+
+    .hide-scrollbar.is-transitioning .member-scroll-item {
+      animation: none !important;
+      transform: none !important;
+    }
+  }
+}
+
+/* Organic Calendar Day Cell Shape Morphing & Pulse */
+@keyframes day-pulse {
+  0% {
+    border-radius: 50% 50% 50% 50%;
+  }
+  25% {
+    border-radius: 42% 58% 46% 54% / 46% 54% 42% 58%;
+  }
+  50% {
+    border-radius: 56% 44% 58% 42% / 42% 58% 56% 44%;
+  }
+  75% {
+    border-radius: 46% 54% 42% 58% / 56% 44% 46% 54%;
+  }
+  100% {
+    border-radius: 50% 50% 50% 50%;
+  }
+}
+
+.day-cell-morph {
+  transition: border-radius 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.25s ease, transform 0.25s ease !important;
+}
+
+.day-cell-morph.has-event:hover {
+  border-radius: 35% 65% 45% 55% / 45% 55% 35% 65% !important;
+  animation: day-pulse 5s infinite linear;
+}
+
+/* ── M3E Expressive: Premium Glassmorphic Glow and Grid Micro-Texture ── */
+.premium-grid-texture {
+  position: relative;
+}
+
+.premium-grid-texture::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+  
+  --texture-gradient: 
+    linear-gradient(45deg, rgba(255, 255, 255, 0.015) 25%, transparent 25%), 
+    linear-gradient(-45deg, rgba(255, 255, 255, 0.015) 25%, transparent 25%), 
+    linear-gradient(45deg, transparent 75%, rgba(255, 255, 255, 0.015) 75%), 
+    linear-gradient(-45deg, transparent 75%, rgba(255, 255, 255, 0.015) 75%);
+  
+  -webkit-mask-image: var(--texture-gradient);
+  -webkit-mask-size: 16px 16px;
+  -webkit-mask-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+  
+  mask-image: var(--texture-gradient);
+  mask-size: 16px 16px;
+  mask-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+}
+
+.dark .premium-grid-texture::after {
+  --texture-gradient: 
+    linear-gradient(45deg, rgba(255, 255, 255, 0.02) 25%, transparent 25%), 
+    linear-gradient(-45deg, rgba(255, 255, 255, 0.02) 25%, transparent 25%), 
+    linear-gradient(45deg, transparent 75%, rgba(255, 255, 255, 0.02) 75%), 
+    linear-gradient(-45deg, transparent 75%, rgba(255, 255, 255, 0.02) 75%);
+}
+
+.glass-glow {
+  position: relative;
+  transition: box-shadow 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.4s ease;
+}
+
+.glass-glow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.03) 40%, rgba(255, 255, 255, 0.01) 60%, rgba(255, 255, 255, 0.15));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 1;
+  transition: opacity 0.4s ease, background 0.4s ease;
+  opacity: 0.8;
+}
+
+.dark .glass-glow::before {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.02) 40%, rgba(255, 255, 255, 0.005) 60%, rgba(255, 255, 255, 0.08));
+}
+
+.glass-glow:hover::before {
+  opacity: 1;
+  background: linear-gradient(135deg, var(--md-primary), transparent 50%, var(--md-tertiary));
+}
+
+
+
 
