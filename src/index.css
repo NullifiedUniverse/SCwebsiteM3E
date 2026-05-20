@@ -441,11 +441,8 @@
 }
 
 /* ── Scroll Lock & Layout Jitter Mitigation ── */
-html.modal-open,
 body.modal-open {
   overflow: hidden !important;
-  height: 100vh !important;
-  height: -webkit-fill-available !important;
   padding-right: var(--scrollbar-width, 0px) !important;
 }
 

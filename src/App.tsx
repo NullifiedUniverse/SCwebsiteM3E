@@ -80,15 +80,12 @@ export default function App() {
       const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
       document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`);
       document.body.classList.add("modal-open");
-      document.documentElement.classList.add("modal-open");
     } else {
       document.body.classList.remove("modal-open");
-      document.documentElement.classList.remove("modal-open");
       document.documentElement.style.removeProperty('--scrollbar-width');
     }
     return () => {
       document.body.classList.remove("modal-open");
-      document.documentElement.classList.remove("modal-open");
       document.documentElement.style.removeProperty('--scrollbar-width');
     };
   }, [activeItem]);
