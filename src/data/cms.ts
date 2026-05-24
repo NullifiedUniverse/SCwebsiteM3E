@@ -1,14 +1,76 @@
-export const DEPTS: Record<string, any> = {
-  "Presidential": { name: { EN: "Presidential", ZH: "學生會代表" }, light: "#D7E3FF", textLight: "#001B3F", dark: "#00458F", textDark: "#D7E3FF", shape: "squircle" },
-  "Activities": { name: { EN: "Activities", ZH: "活動部" }, light: "#FFD9E2", textLight: "#3A002A", dark: "#8D0A50", textDark: "#FFD9E2", shape: "cookie" },
-  "Sec & Treas": { name: { EN: "Sec & Treas", ZH: "秘書與總務部" }, light: "#EADDFF", textLight: "#2A0054", dark: "#6023B4", textDark: "#EADDFF", shape: "8-leaf clover" },
-  "Equipment": { name: { EN: "Equipment", ZH: "器材部" }, light: "#FFDBCC", textLight: "#331100", dark: "#7A3200", textDark: "#FFDBCC", shape: "4-sided cookie" },
-  "IT": { name: { EN: "IT", ZH: "資訊部" }, light: "#BCE9FF", textLight: "#001F29", dark: "#004D63", textDark: "#BCE9FF", shape: "diamond" },
-  "PR": { name: { EN: "PR", ZH: "公關部" }, light: "#A5F5B2", textLight: "#002107", dark: "#005322", textDark: "#A5F5B2", shape: "flower" },
-  "Student Rights": { name: { EN: "Student Rights", ZH: "學權部" }, light: "#FFDAD6", textLight: "#410002", dark: "#93000A", textDark: "#FFDAD6", shape: "burst" },
+export interface I18nText {
+  EN: string;
+  ZH: string;
+  PIRATE?: string;
+}
+
+export interface DeptConfig {
+  name: I18nText;
+  light: string;
+  textLight: string;
+  dark: string;
+  textDark: string;
+  shape: string;
+}
+
+export interface HeroItem {
+  id: string;
+  type: 'hero';
+  title: I18nText;
+  label: I18nText;
+  desc: I18nText;
+  colorLight: string;
+  textLight: string;
+  colorDark: string;
+  textDark: string;
+  image: string;
+}
+
+export interface EventItem {
+  id: string;
+  type: 'event';
+  title: I18nText;
+  desc: I18nText;
+  date: string;
+  colorLight: string;
+  textLight: string;
+  colorDark: string;
+  textDark: string;
+  image: string;
+}
+
+export interface MemberItem {
+  id: string;
+  type: 'member';
+  name: string;
+  gen: string;
+  role: I18nText;
+  class: string;
+  dept: string;
+  about: I18nText;
+  expectation: I18nText;
+  responsibility: I18nText;
+  seed: number;
+  image: string;
+}
+
+export interface CMSData {
+  hero: HeroItem;
+  events: EventItem[];
+  members: MemberItem[];
+}
+
+export const DEPTS: Record<string, DeptConfig> = {
+  "Presidential": { name: { EN: "Presidential", ZH: "學生會代表" }, light: "#D7E3FF", textLight: "#001B3F", dark: "#0056B3", textDark: "#E0EAFF", shape: "squircle" },
+  "Activities": { name: { EN: "Activities", ZH: "活動部" }, light: "#FFD9E2", textLight: "#3A002A", dark: "#AD1468", textDark: "#FFD9E4", shape: "cookie" },
+  "Sec & Treas": { name: { EN: "Sec & Treas", ZH: "秘書與總務部" }, light: "#EADDFF", textLight: "#2A0054", dark: "#7A35D6", textDark: "#EADDFF", shape: "8-leaf clover" },
+  "Equipment": { name: { EN: "Equipment", ZH: "器材部" }, light: "#FFDBCC", textLight: "#331100", dark: "#A04500", textDark: "#FFDBCB", shape: "4-sided cookie" },
+  "IT": { name: { EN: "IT", ZH: "資訊部" }, light: "#BCE9FF", textLight: "#001F29", dark: "#006785", textDark: "#BCE9FF", shape: "diamond" },
+  "PR": { name: { EN: "PR", ZH: "公關部" }, light: "#A5F5B2", textLight: "#002107", dark: "#007030", textDark: "#A9F5B5", shape: "flower" },
+  "Student Rights": { name: { EN: "Student Rights", ZH: "學權部" }, light: "#FFDAD6", textLight: "#410002", dark: "#B80010", textDark: "#FFDAD6", shape: "burst" },
 };
 
-export const CMS = {
+export const CMS: CMSData = {
   hero: {
     id: "hero", type: "hero",
     title: { EN: "The 8th Council Transition", ZH: "第八屆學生會傳承與交接" },

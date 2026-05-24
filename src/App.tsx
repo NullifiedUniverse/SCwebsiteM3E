@@ -78,15 +78,15 @@ export default function App() {
   useLayoutEffect(() => {
     if (activeItem) {
       const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-      document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`);
-      document.body.classList.add("modal-open");
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.classList.remove("modal-open");
-      document.documentElement.style.removeProperty('--scrollbar-width');
+      document.body.style.paddingRight = "0px";
+      document.body.style.overflow = "auto";
     }
     return () => {
-      document.body.classList.remove("modal-open");
-      document.documentElement.style.removeProperty('--scrollbar-width');
+      document.body.style.paddingRight = "0px";
+      document.body.style.overflow = "auto";
     };
   }, [activeItem]);
 
@@ -118,13 +118,13 @@ export default function App() {
           animate={{ x: [0, 80, 0], y: [0, 40, 0], rotate: partyMode ? [0, 360] : 0 }}
           transition={{ duration: partyMode ? 2 : 22, repeat: Infinity, ease: "linear" }}
           className="absolute top-[-12%] left-[-8%] w-[48%] h-[48%] rounded-full blur-[120px]"
-          style={{ backgroundColor: partyMode ? 'rgba(236,72,153,0.45)' : 'color-mix(in srgb, var(--md-primary) 18%, transparent)' }}
+          style={{ backgroundColor: partyMode ? 'rgba(236,72,153,0.45)' : 'var(--md-elevation-3)' }}
         />
         <motion.div
           animate={{ x: [0, -80, 0], y: [0, -40, 0], rotate: partyMode ? [360, 0] : 0 }}
           transition={{ duration: partyMode ? 2 : 28, repeat: Infinity, ease: "linear" }}
           className="absolute top-[18%] right-[-8%] w-[38%] h-[38%] rounded-full blur-[120px]"
-          style={{ backgroundColor: partyMode ? 'rgba(234,179,8,0.45)' : 'color-mix(in srgb, var(--md-tertiary) 15%, transparent)' }}
+          style={{ backgroundColor: partyMode ? 'rgba(234,179,8,0.45)' : 'var(--md-primary-container)', opacity: 0.25 }}
         />
       </div>
 
@@ -381,7 +381,7 @@ export default function App() {
           </motion.nav>
 
           {/* Desktop: Floating pill nav (≥ 640px) — M3E Expressive variant */}
-          <div className="hidden sm:flex fixed bottom-6 left-0 right-0 z-40 justify-center pointer-events-none fixed-nav-container">
+          <div className="hidden sm:flex fixed bottom-6 left-0 right-0 z-40 justify-center pointer-events-none">
             <motion.nav
               initial={{ y: 50, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}

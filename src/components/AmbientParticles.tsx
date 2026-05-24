@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import { useReducedMotion } from "../hooks/useReducedMotion";
 
 interface AmbientParticlesProps {
   darkMode: boolean;
@@ -7,12 +8,18 @@ interface AmbientParticlesProps {
 
 export function AmbientParticles({ darkMode, partyMode }: AmbientParticlesProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const prefersReduced = useReducedMotion();
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+
+    if (prefersReduced) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      return;
+    }
 
     let animationFrameId: number;
     let width = (canvas.width = window.innerWidth);
@@ -88,8 +95,18 @@ export function AmbientParticles({ darkMode, partyMode }: AmbientParticlesProps)
     };
     window.addEventListener("mousemove", handleMouseMove, { passive: true });
 
+    let isPaused = false;
+    const handleVisibility = () => {
+      isPaused = document.hidden;
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+
     // Render loop
     const render = () => {
+      if (isPaused) {
+        animationFrameId = requestAnimationFrame(render);
+        return;
+      }
       ctx.clearRect(0, 0, width, height);
 
       particles.forEach((p) => {
@@ -116,9 +133,10 @@ export function AmbientParticles({ darkMode, partyMode }: AmbientParticlesProps)
     return () => {
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("visibilitychange", handleVisibility);
       cancelAnimationFrame(animationFrameId);
     };
-  }, [darkMode, partyMode]);
+  }, [darkMode, partyMode, prefersReduced]);
 
   return (
     <canvas

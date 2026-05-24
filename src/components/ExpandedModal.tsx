@@ -26,7 +26,6 @@ export function ExpandedModal({ activeItem: propActiveItem, setActiveItem, darkM
 
   const [isMobile, setIsMobile] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const scrimRef = useRef<HTMLDivElement>(null);
   const { scrollY } = useScroll({ container: scrollRef });
 
   useEffect(() => {
@@ -38,20 +37,6 @@ export function ExpandedModal({ activeItem: propActiveItem, setActiveItem, darkM
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  useEffect(() => {
-    const scrim = scrimRef.current;
-    if (!scrim) return;
-    const handleTouchMove = (e: TouchEvent) => {
-      if (e.cancelable) {
-        e.preventDefault();
-      }
-    };
-    scrim.addEventListener("touchmove", handleTouchMove, { passive: false });
-    return () => {
-      scrim.removeEventListener("touchmove", handleTouchMove);
-    };
-  }, []);
-
   const leftPct = useTransform(scrollY, [0, 120], [50, 0], { clamp: true });
   const leftStyle = useTransform(leftPct, (v) => `${v}%`);
 
@@ -61,7 +46,7 @@ export function ExpandedModal({ activeItem: propActiveItem, setActiveItem, darkM
   const topVal = useTransform(scrollY, [0, 120], [isMobile ? 64 : 80, isMobile ? 16 : 24], { clamp: true });
   const topStyle = useTransform(topVal, (v) => `${v}px`);
 
-  const scaleVal = useTransform(scrollY, [0, 120], [1, isMobile ? 0.32 : 0.28], { clamp: true });
+  const scaleVal = useTransform(scrollY, [0, 120], [1, isMobile ? 0.3 : 0.26], { clamp: true });
 
   const transformXScale = useTransform(
     [xPct, xOffset, scaleVal],
@@ -141,11 +126,15 @@ export function ExpandedModal({ activeItem: propActiveItem, setActiveItem, darkM
     <>
       {/* ── Scrim — M3E glassmorphic backdrop ── */}
       <motion.div
-        ref={scrimRef}
         initial={{ opacity: 0, backdropFilter: "blur(0px)", WebkitBackdropFilter: "blur(0px)" }}
-        animate={{ opacity: 1, backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}
-        exit={{ opacity: 0, backdropFilter: "blur(0px)", WebkitBackdropFilter: "blur(0px)" }}
-        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        animate={{ opacity: 1, backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}
+        exit={{
+          opacity: 0,
+          backdropFilter: "blur(0px)",
+          WebkitBackdropFilter: "blur(0px)",
+          transition: { duration: 0.18, ease: "easeOut" }
+        }}
+        transition={M3E_EFFECTS}
         className="fixed inset-0"
         style={{
           zIndex: Z_SCRIM,
@@ -162,14 +151,14 @@ export function ExpandedModal({ activeItem: propActiveItem, setActiveItem, darkM
       >
         <motion.div
           layoutId={`card-${activeItem.id}`}
-          className="w-[94vw] md:w-[90vw] lg:w-[88vw] xl:w-[85vw] max-w-[1440px] h-[90vh] max-h-[880px] relative pointer-events-auto flex flex-col overflow-hidden"
+          className="w-full max-w-4xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl h-[88vh] max-h-[900px] relative pointer-events-auto flex flex-col overflow-hidden"
           // M3E shape.extra-large = 28dp for dialogs/sheets
           style={{
             backgroundColor: bgColor,
             borderRadius: 28,
             boxShadow: `0 25px 50px -12px rgba(0, 0, 0, 0.45), 0 0 40px rgba(0, 0, 0, 0.15)`,
           }}
-          transition={{ layout: { type: "spring", stiffness: 200, damping: 30, mass: 1.0 } }}
+          transition={{ layout: M3E_SPATIAL }}
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-title"
@@ -226,15 +215,15 @@ export function ExpandedModal({ activeItem: propActiveItem, setActiveItem, darkM
             ref={scrollRef}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 15, transition: { duration: 0.24, ease: [0.16, 1, 0.3, 1] } }}
+            exit={{ opacity: 0, y: 15, transition: { duration: 0.12, ease: "easeIn" } }}
             transition={{
               type: "spring",
-              stiffness: 220,
-              damping: 28,
-              mass: 0.9,
-              delay: 0.06
+              stiffness: 180,
+              damping: 24,
+              mass: 0.8,
+              delay: 0.08
             }}
-            className="absolute inset-0 flex flex-col overflow-y-auto hide-scrollbar overscroll-contain z-10"
+            className="absolute inset-0 flex flex-col overflow-y-auto hide-scrollbar z-10"
           >
             {/* Event image — full-bleed top */}
             {activeItem.image && !isMember && (
@@ -255,7 +244,7 @@ export function ExpandedModal({ activeItem: propActiveItem, setActiveItem, darkM
               {/* Member portrait spacer */}
               {isMember && activeItem.image && !imgFailed && (
                 <div className="w-full flex justify-center shrink-0" aria-hidden="true">
-                  <div className="w-[180px] h-[180px] sm:w-60 sm:h-60 lg:w-68 lg:h-68 mb-12" />
+                  <div className="w-[160px] h-[160px] sm:w-52 sm:h-52 mb-8" />
                 </div>
               )}
 
@@ -287,7 +276,7 @@ export function ExpandedModal({ activeItem: propActiveItem, setActiveItem, darkM
                       : (activeItem.label || activeItem.date)
                     }
                     lang={lang}
-                    className="text-xs sm:text-sm uppercase tracking-widest mb-4 block font-extrabold opacity-85"
+                    className="md-label-large uppercase tracking-widest mb-4 block opacity-80"
                     style={{ color: textColor, ...(isAndrew ? { fontVariationSettings: `'wght' ${Math.min(900, 400 + andrewScore * 50)}` } : {}) }}
                   />
                 </motion.div>
@@ -304,7 +293,7 @@ export function ExpandedModal({ activeItem: propActiveItem, setActiveItem, darkM
                       className={`font-black mb-4 tracking-tighter leading-tight block w-full ${isAndrew ? 'drop-shadow-[0_0_8px_rgba(0,255,255,0.8)]' : ''}`}
                       style={{
                         color: textColor,
-                        fontSize: 'clamp(42px, 6vw, 76px)',
+                        fontSize: 'clamp(36px, 5vw, 60px)',
                         lineHeight: 1.1,
                         fontVariationSettings: isAndrew
                           ? `'opsz' ${8 + (andrewScore * 5) % 136}, 'wght' ${Math.min(900, 100 + andrewScore * 20)}`
@@ -323,7 +312,7 @@ export function ExpandedModal({ activeItem: propActiveItem, setActiveItem, darkM
                     <LangText
                       content={activeItem.role}
                       lang={lang}
-                      className="text-lg md:text-xl xl:text-2xl font-bold opacity-95 mb-8 block"
+                      className="md-title-medium font-bold opacity-90 mb-8 block"
                       style={{ color: textColor }}
                     />
                   </motion.div>
@@ -333,33 +322,32 @@ export function ExpandedModal({ activeItem: propActiveItem, setActiveItem, darkM
               {/* Event description */}
               {!isMember && (
                 <motion.div
-                  initial={{ y: 20, opacity: 0 }}
+                  initial={{ y: 16, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.2, ...M3E_SPATIAL }}
-                  whileHover={{ scale: 1.025, y: -4, transition: M3E_FAST }}
-                  className="p-10 sm:p-12 backdrop-blur-sm shadow-sm mt-10 max-w-5xl lg:max-w-6xl xl:max-w-7xl w-full mx-auto cursor-default glass-glow premium-grid-texture"
+                  className="p-6 backdrop-blur-sm shadow-sm mt-8 max-w-3xl lg:max-w-4xl w-full mx-auto"
                   style={{
-                    backgroundColor: darkMode ? 'rgba(0,0,0,0.28)' : 'rgba(255,255,255,0.45)',
-                    border: `1px solid ${darkMode ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.5)'}`,
+                    backgroundColor: darkMode ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.12)',
+                    border: `1px solid ${darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.25)'}`,
                     borderRadius: 'var(--md-shape-large)',
                   }}
                 >
-                  <h3 className="text-lg sm:text-xl uppercase tracking-wider font-black mb-4 flex items-center gap-3 relative z-10" style={{ color: textColor }}>
-                    <Info size={22} />
+                  <h3 className="md-label-large uppercase tracking-wider font-bold mb-2.5 flex items-center gap-2" style={{ color: textColor, opacity: 0.85 }}>
+                    <Info size={16} />
                     <LangText content={{ EN: "Event Details", ZH: "活動詳情" }} lang={lang} inline />
                   </h3>
                   <LangText
                     content={activeItem.desc}
                     lang={lang}
-                    className="text-base md:text-lg xl:text-[1.12rem] leading-relaxed font-normal block text-left relative z-10"
-                    style={{ color: textColor, opacity: 1 }}
+                    className="md-body-large leading-relaxed font-normal block text-left"
+                    style={{ color: textColor, opacity: 0.95 }}
                   />
                 </motion.div>
               )}
 
               {/* Member detail sections */}
               {isMember && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-10 mt-12 max-w-7xl xl:max-w-[1500px] w-full mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10 max-w-5xl lg:max-w-6xl w-full mx-auto">
                   {[
                     { icon: Info, labelEN: "About Me", labelZH: "關於我", content: activeItem.about, delay: 0.2 },
                     { icon: Users, labelEN: "Expectation", labelZH: "我的期望", content: activeItem.expectation, delay: 0.28 },
@@ -367,26 +355,25 @@ export function ExpandedModal({ activeItem: propActiveItem, setActiveItem, darkM
                   ].map(({ icon: Icon, labelEN, labelZH, content, delay }) => (
                     <motion.div
                       key={labelEN}
-                      initial={{ y: 20, opacity: 0 }}
+                      initial={{ y: 16, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
                       transition={{ delay, ...M3E_SPATIAL }}
-                      whileHover={{ scale: 1.025, y: -4, transition: M3E_FAST }}
-                      className="p-10 sm:p-12 backdrop-blur-sm shadow-sm hover:shadow-md cursor-default glass-glow premium-grid-texture"
+                      className="p-6 backdrop-blur-sm shadow-sm transition-all duration-300 hover:shadow-md"
                       style={{
-                        backgroundColor: darkMode ? 'rgba(0,0,0,0.28)' : 'rgba(255,255,255,0.45)',
-                        border: `1px solid ${darkMode ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.5)'}`,
+                        backgroundColor: darkMode ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.12)',
+                        border: `1px solid ${darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.25)'}`,
                         borderRadius: 'var(--md-shape-large)',
                       }}
                     >
-                      <h3 className="text-lg sm:text-xl uppercase tracking-wider font-black mb-4 flex items-center gap-3 relative z-10" style={{ color: textColor }}>
-                        <Icon size={22} />
+                      <h3 className="md-label-large uppercase tracking-wider font-bold mb-2.5 flex items-center gap-2" style={{ color: textColor, opacity: 0.85 }}>
+                        <Icon size={16} />
                         <LangText content={{ EN: labelEN, ZH: labelZH }} lang={lang} inline />
                       </h3>
                       <LangText
                         content={content}
                         lang={lang}
-                        className="text-base md:text-lg xl:text-[1.12rem] leading-relaxed font-normal whitespace-pre-wrap block text-left relative z-10"
-                        style={{ color: textColor, opacity: 1 }}
+                        className="md-body-large leading-relaxed font-normal whitespace-pre-wrap block text-left"
+                        style={{ color: textColor, opacity: 0.95 }}
                       />
                     </motion.div>
                   ))}
@@ -413,9 +400,9 @@ export function ExpandedModal({ activeItem: propActiveItem, setActiveItem, darkM
                 whileTap={isAndrew ? { scale: 0.9 } : undefined}
                 initial={{ scale: 0.82, opacity: 0, y: 18 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
-                exit={{ scale: 0.82, opacity: 0, y: 10, transition: { duration: 0.18, ease: [0.32, 0, 0.67, 0] } }}
+                exit={{ scale: 0.82, opacity: 0, y: 10, transition: { duration: 0.12, ease: "easeIn" } }}
                 transition={{ ...M3E_SPATIAL, delay: 0.05 }}
-                className={`w-[180px] h-[180px] sm:w-60 sm:h-60 lg:w-68 lg:h-68 relative ${isAndrew ? 'cursor-pointer' : ''}`}
+                className={`w-[160px] h-[160px] sm:w-52 sm:h-52 relative ${isAndrew ? 'cursor-pointer' : ''}`}
                 style={{ filter: isAndrew ? undefined : 'drop-shadow(0 8px 24px rgba(0,0,0,0.15))' }}
               >
                 <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full overflow-visible">

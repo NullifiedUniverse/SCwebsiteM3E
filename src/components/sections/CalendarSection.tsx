@@ -132,6 +132,7 @@ export function CalendarSection({ lang, darkMode, setActiveItem }: CalendarSecti
             textShadow: "0 0 0px transparent",
           }}
           transition={M3E_EFFECTS}
+          className="transition-all duration-200"
         >
           <LangText content={{ EN: "Event Calendar", ZH: "活動行事曆" }} lang={lang} inline />
         </motion.span>
