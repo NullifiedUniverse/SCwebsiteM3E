@@ -126,14 +126,14 @@ export function ExpandedModal({ activeItem: propActiveItem, setActiveItem, darkM
     <>
       {/* ── Scrim — M3E glassmorphic backdrop ── */}
       <motion.div
-        initial={{ opacity: 0, backdropFilter: "blur(0px)", WebkitBackdropFilter: "blur(0px)" }}
-        animate={{ opacity: 1, backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}
+        initial={{ opacity: 0, backdropFilter: "blur(0px)", WebkitBackdropFilter: "blur(0px)" } as any}
+        animate={{ opacity: 1, backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" } as any}
         exit={{
           opacity: 0,
           backdropFilter: "blur(0px)",
           WebkitBackdropFilter: "blur(0px)",
           transition: { duration: 0.18, ease: "easeOut" }
-        }}
+        } as any}
         transition={M3E_EFFECTS}
         className="fixed inset-0"
         style={{
