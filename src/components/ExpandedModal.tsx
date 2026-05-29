@@ -12,6 +12,7 @@ const Z_FAB    = 51;
 
 function AndrewMatrixRain() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const mouseRef = useRef({ x: -1000, y: -1000 });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -29,43 +30,113 @@ function AndrewMatrixRain() {
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
 
+    // Track mouse coordinates for interactive parallax sway
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      mouseRef.current = {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+      };
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+
     const chars = "0123456789ABCDEF<>/{};:[]_+$#@!&*()".split("");
     const fontSize = 14;
     const columns = Math.ceil(canvas.width / fontSize);
     const drops: number[] = Array(columns).fill(1);
+    
+    // Store column drifts
+    const drifts: number[] = Array(columns).fill(0);
+    
+    // Technical vocabulary keywords to inject
+    const cyberWords = [
+      "GEMINI", "ANTIGRAVITY", "M3_EXPRESSIVE", "AI_AGENTS", 
+      "TYPESCRIPT", "REACT", "NULL_UNIVERSE", "GLITCH_CLEANSED", 
+      "SYSTEM_SECURED", "CYBER_HUD", "3D_HALO", "FOB_KEY"
+    ];
+
+    let scanlineY = 0;
 
     const draw = () => {
+      // Create trailing dissolve effect
       ctx.fillStyle = "rgba(0, 0, 0, 0.08)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       ctx.font = `${fontSize}px monospace`;
 
-      // Curated vertical chromatic gradient shifting dynamically over time
-      const tick = Date.now() * 0.04; // time-based tick
+      const tick = Date.now() * 0.04;
       const chromaGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
       chromaGrad.addColorStop(0, `hsl(${tick % 360}, 100%, 65%)`);
       chromaGrad.addColorStop(0.33, `hsl(${(tick + 90) % 360}, 100%, 65%)`);
       chromaGrad.addColorStop(0.66, `hsl(${(tick + 180) % 360}, 100%, 65%)`);
       chromaGrad.addColorStop(1, `hsl(${(tick + 270) % 360}, 100%, 65%)`);
 
+      // Draw standard streams
       for (let i = 0; i < drops.length; i++) {
-        const text = chars[Math.floor(Math.random() * chars.length)];
-        const x = i * fontSize;
-        const y = drops[i] * fontSize;
-
-        if (Math.random() > 0.98) {
-          ctx.fillStyle = "#ffffff";
+        const xBase = i * fontSize;
+        
+        // Mouse gravity: columns near cursor drift horizontally
+        const dx = mouseRef.current.x - xBase;
+        const dy = mouseRef.current.y - (drops[i] * fontSize);
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        
+        if (dist < 180) {
+          // Attract/repel drift smoothly
+          const targetDrift = (dx / dist) * -12;
+          drifts[i] += (targetDrift - drifts[i]) * 0.1;
         } else {
-          ctx.fillStyle = chromaGrad;
+          // Decelerate drift back to 0
+          drifts[i] += (0 - drifts[i]) * 0.05;
         }
 
-        ctx.fillText(text, x, y);
+        const x = xBase + drifts[i];
+        const y = drops[i] * fontSize;
+
+        // Highlight head particle
+        if (Math.random() > 0.98) {
+          ctx.fillStyle = "#ffffff";
+          ctx.shadowColor = "#ffffff";
+          ctx.shadowBlur = 8;
+        } else {
+          ctx.fillStyle = chromaGrad;
+          ctx.shadowBlur = 0;
+        }
+
+        // Apply scanline flickering
+        const isNearScanline = Math.abs(y - scanlineY) < 30;
+        if (isNearScanline && Math.random() > 0.3) {
+          ctx.fillStyle = "#ffffff";
+          ctx.shadowColor = "#ec4899";
+          ctx.shadowBlur = 15;
+          // horizontal offset jitter
+          ctx.fillText(chars[Math.floor(Math.random() * chars.length)], x + (Math.random() - 0.5) * 8, y);
+        } else {
+          // Render random word periodically
+          if (Math.random() > 0.996 && drops[i] < canvas.height / fontSize - 6) {
+            const word = cyberWords[Math.floor(Math.random() * cyberWords.length)];
+            ctx.shadowColor = "#22d3ee";
+            ctx.shadowBlur = 10;
+            ctx.fillStyle = "#ffffff";
+            for (let w = 0; w < word.length; w++) {
+              ctx.fillText(word[w], x, y + w * fontSize);
+            }
+            drops[i] += word.length;
+            continue;
+          }
+          ctx.fillText(chars[Math.floor(Math.random() * chars.length)], x, y);
+        }
+        ctx.shadowBlur = 0;
 
         if (y > canvas.height && Math.random() > 0.975) {
           drops[i] = 0;
         }
         drops[i]++;
       }
+
+      // Draw technical CRT scanline overlay
+      scanlineY = (scanlineY + 2.5) % canvas.height;
+      ctx.fillStyle = "rgba(34, 211, 238, 0.04)";
+      ctx.fillRect(0, scanlineY, canvas.width, 2);
 
       animationFrameId = requestAnimationFrame(draw);
     };
@@ -75,13 +146,14 @@ function AndrewMatrixRain() {
     return () => {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener("resize", resizeCanvas);
+      window.removeEventListener("mousemove", handleMouseMove);
     };
   }, []);
 
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-0 w-full h-full z-0 pointer-events-none opacity-[0.22] mix-blend-screen"
+      className="absolute inset-0 w-full h-full z-0 pointer-events-none opacity-[0.26] mix-blend-screen"
     />
   );
 }
@@ -99,6 +171,8 @@ export function ExpandedModal({ activeItem: propActiveItem, setActiveItem, darkM
   const [andrewScore, setAndrewScore] = useState(0);
   const [andrewParticles, setAndrewParticles] = useState<{id: number, text: string, x: number, y: number, color?: string}[]>([]);
   const [andrewBugs, setAndrewBugs] = useState<{id: number, pathX: number[], pathY: number[], duration: number}[]>([]);
+  const [cardShake, setCardShake] = useState(false);
+  const [shardExplosions, setShardExplosions] = useState<{id: number, x: number, y: number, targetX: number, targetY: number, text: string, color: string}[]>([]);
 
   const [isMobile, setIsMobile] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -149,15 +223,21 @@ export function ExpandedModal({ activeItem: propActiveItem, setActiveItem, darkM
   const handleAndrewClick = (e: React.MouseEvent) => {
     if (!isAndrew) return;
     setAndrewScore(s => s + 1);
+    
+    // Shake the card!
+    setCardShake(true);
+    setTimeout(() => setCardShake(false), 350);
+
     const texts = ["<div />", "wahoo", "sudo rm -rf /", "console.log()", "undefined", "NaN", "Easter Egg #42", "Fixing bugs...", "TypeScript > JS"];
     const text = texts[Math.floor(Math.random() * texts.length)];
     setAndrewParticles(p => [...p, { id: Date.now() + Math.random(), text, x: e.clientX, y: e.clientY }]);
-    if (andrewScore > 0 && andrewScore % 4 === 0) {
+    
+    if (andrewScore >= 0 && andrewScore % 2 === 0) {
       setAndrewBugs(b => [...b, {
-        id: Date.now(),
-        pathX: Array.from({length: 6}, () => (Math.random() - 0.5) * window.innerWidth),
-        pathY: Array.from({length: 6}, () => (Math.random() - 0.5) * window.innerHeight),
-        duration: 8 + Math.random() * 5
+        id: Date.now() + Math.random(),
+        pathX: Array.from({length: 6}, () => (0.15 + Math.random() * 0.7) * window.innerWidth),
+        pathY: Array.from({length: 6}, () => (0.15 + Math.random() * 0.7) * window.innerHeight),
+        duration: 5 + Math.random() * 4
       }]);
     }
   };
@@ -166,7 +246,30 @@ export function ExpandedModal({ activeItem: propActiveItem, setActiveItem, darkM
     e.stopPropagation();
     setAndrewBugs(b => b.filter(bug => bug.id !== id));
     setAndrewScore(s => s + 5);
-    setAndrewParticles(p => [...p, { id: Date.now() + Math.random(), text: "SQUASHED!", x: e.clientX, y: e.clientY, color: "text-red-400" }]);
+    
+    // Shake the card on squashing!
+    setCardShake(true);
+    setTimeout(() => setCardShake(false), 350);
+
+    setAndrewParticles(p => [...p, { id: Date.now() + Math.random(), text: "GLITCH REMOVED!", x: e.clientX, y: e.clientY, color: "text-rose-400 font-bold" }]);
+
+    // Radial code shard explosion!
+    const chromaColors = ["text-cyan-400", "text-purple-400", "text-pink-400", "text-emerald-400"];
+    const glyphs = ["1", "0", "0xEF", "{}", "< />", "Err!", "Bug"];
+    const newShards = Array.from({ length: 8 }).map((_, idx) => {
+      const angle = (idx / 8) * Math.PI * 2 + (Math.random() - 0.5) * 0.4;
+      const velocity = 90 + Math.random() * 120;
+      return {
+        id: Date.now() + idx + Math.random(),
+        x: e.clientX,
+        y: e.clientY,
+        targetX: e.clientX + Math.cos(angle) * velocity,
+        targetY: e.clientY + Math.sin(angle) * velocity,
+        text: glyphs[Math.floor(Math.random() * glyphs.length)],
+        color: chromaColors[Math.floor(Math.random() * chromaColors.length)]
+      };
+    });
+    setShardExplosions(prev => [...prev, ...newShards]);
   };
 
   const modalStaticPath = useMemo(() => isMember ? getPath(theme!.shape, 100, 100, 0) : "", [isMember, theme]);
@@ -326,6 +429,21 @@ export function ExpandedModal({ activeItem: propActiveItem, setActiveItem, darkM
                 </motion.div>
               ))}
 
+              {/* Andrew Bug Shard Explosions */}
+              {isAndrew && shardExplosions.map(s => (
+                <motion.div
+                  key={s.id}
+                  initial={{ opacity: 1, x: s.x, y: s.y, scale: 1 }}
+                  animate={{ opacity: 0, x: s.targetX, y: s.targetY, scale: 0.4, rotate: (Math.random() - 0.5) * 360 }}
+                  transition={{ duration: 1.2, ease: [0.1, 0.8, 0.25, 1.0] }}
+                  onAnimationComplete={() => setShardExplosions(arr => arr.filter(item => item.id !== s.id))}
+                  className={`fixed font-mono font-bold pointer-events-none ${s.color}`}
+                  style={{ zIndex: Z_FAB + 12, filter: 'drop-shadow(0 0 5px currentColor)' }}
+                >
+                  {s.text}
+                </motion.div>
+              ))}
+
               {/* Member/Event identity block */}
               <div className={isMember ? "flex flex-col items-center text-center" : "flex flex-col"}>
                 <motion.div
@@ -460,14 +578,106 @@ export function ExpandedModal({ activeItem: propActiveItem, setActiveItem, darkM
             >
               <motion.div
                 onClick={handleAndrewClick}
-                whileTap={isAndrew ? { scale: 0.9 } : undefined}
+                whileTap={isAndrew ? { scale: 0.95 } : undefined}
                 initial={{ scale: 0.82, opacity: 0, y: 18 }}
-                animate={{ scale: 1, opacity: 1, y: 0 }}
+                animate={cardShake ? "shake" : "visible"}
+                variants={{
+                  visible: { scale: 1, opacity: 1, y: 0 },
+                  shake: {
+                    x: [0, -6, 6, -6, 6, -3, 3, -1, 1, 0],
+                    y: [0, 4, -4, 4, -4, 2, -2, 1, -1, 0],
+                    transition: { duration: 0.35, ease: "easeInOut" }
+                  }
+                }}
                 exit={{ scale: 0.82, opacity: 0, y: 10, transition: { duration: 0.12, ease: "easeIn" } }}
                 transition={{ ...M3E_SPATIAL, delay: 0.05 }}
-                className={`w-[160px] h-[160px] sm:w-52 sm:h-52 relative ${isAndrew ? 'cursor-pointer' : ''}`}
+                className={`w-[160px] h-[160px] sm:w-52 sm:h-52 relative ${isAndrew ? 'cursor-pointer group' : ''}`}
                 style={{ filter: isAndrew ? undefined : 'drop-shadow(0 8px 24px rgba(0,0,0,0.15))' }}
               >
+                {/* Andrew expanded holographic neon tech ring */}
+                {isAndrew && (
+                  <motion.div
+                    animate={{
+                      rotate: 360,
+                    }}
+                    transition={{
+                      rotate: { duration: 8, repeat: Infinity, ease: "linear" }
+                    }}
+                    className="absolute -inset-6 pointer-events-none flex items-center justify-center"
+                    style={{ zIndex: -1 }}
+                  >
+                    <svg viewBox="0 0 120 120" className="w-full h-full overflow-visible">
+                      <defs>
+                        <motion.linearGradient
+                          id="andrew-modal-chroma-grad"
+                          animate={{
+                            x1: ["0%", "100%", "100%", "0%", "0%"],
+                            y1: ["0%", "0%", "100%", "100%", "0%"],
+                            x2: ["100%", "0%", "0%", "100%", "100%"],
+                            y2: ["100%", "100%", "0%", "0%", "100%"]
+                          }}
+                          transition={{
+                            duration: 6,
+                            repeat: Infinity,
+                            ease: "linear"
+                          }}
+                        >
+                          <motion.stop
+                            offset="0%"
+                            animate={{ stopColor: ["#22d3ee", "#8b5cf6", "#ec4899", "#10b981", "#22d3ee"] }}
+                            transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+                          />
+                          <motion.stop
+                            offset="35%"
+                            animate={{ stopColor: ["#8b5cf6", "#ec4899", "#10b981", "#22d3ee", "#8b5cf6"] }}
+                            transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+                          />
+                          <motion.stop
+                            offset="70%"
+                            animate={{ stopColor: ["#ec4899", "#10b981", "#22d3ee", "#8b5cf6", "#ec4899"] }}
+                            transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+                          />
+                          <motion.stop
+                            offset="100%"
+                            animate={{ stopColor: ["#10b981", "#22d3ee", "#8b5cf6", "#ec4899", "#10b981"] }}
+                            transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+                          />
+                        </motion.linearGradient>
+                      </defs>
+                      <motion.circle
+                        cx="60" cy="60" r="54"
+                        fill="none"
+                        stroke="url(#andrew-modal-chroma-grad)"
+                        strokeWidth="1.5"
+                        strokeDasharray="4 8 12 8"
+                        animate={{ strokeDashoffset: [0, 32] }}
+                        transition={{ duration: 3.5, repeat: Infinity, ease: "linear" }}
+                        style={{ filter: "drop-shadow(0 0 10px rgba(34,211,238,0.85))" }}
+                      />
+                      <motion.circle
+                        cx="60" cy="60" r="58"
+                        fill="none"
+                        stroke="url(#andrew-modal-chroma-grad)"
+                        strokeWidth="1"
+                        strokeDasharray="50 15"
+                        animate={{ strokeDashoffset: [0, -60] }}
+                        transition={{ duration: 4.5, repeat: Infinity, ease: "linear" }}
+                        style={{ opacity: 0.7 }}
+                      />
+                      <motion.circle
+                        cx="60" cy="60" r="50"
+                        fill="none"
+                        stroke="url(#andrew-modal-chroma-grad)"
+                        strokeWidth="2.5"
+                        strokeDasharray="25 45 15 35"
+                        animate={{ strokeDashoffset: [0, 120] }}
+                        transition={{ duration: 5.5, repeat: Infinity, ease: "linear" }}
+                        style={{ filter: "drop-shadow(0 0 5px rgba(139,92,246,0.75))" }}
+                      />
+                    </svg>
+                  </motion.div>
+                )}
+
                 <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full overflow-visible">
                   <defs>
                     <clipPath id={`modal-clip-img-${activeItem.id}`}>
@@ -552,6 +762,57 @@ export function ExpandedModal({ activeItem: propActiveItem, setActiveItem, darkM
         </motion.div>
       </motion.div>
 
+      {/* Andrew Cyber Stats Dashboard */}
+      {isAndrew && (
+        <motion.div
+          initial={{ opacity: 0, x: 50, scale: 0.9 }}
+          animate={{ opacity: 1, x: 0, scale: 1 }}
+          transition={{ ...M3E_SPATIAL, delay: 0.2 }}
+          className="fixed top-24 right-6 sm:top-28 sm:right-8 w-64 p-4 rounded-2xl bg-black/60 border border-cyan-500/30 backdrop-blur-md text-cyan-400 select-none shadow-[0_0_24px_rgba(6,182,212,0.15)] overflow-hidden hidden md:block"
+          style={{ zIndex: Z_MODAL - 2 }}
+        >
+          <div className="absolute -top-10 -right-10 w-24 h-24 bg-cyan-500/10 rounded-full blur-xl pointer-events-none" />
+          <div className="font-mono text-[10px] tracking-widest text-cyan-500/60 uppercase mb-2 flex items-center justify-between">
+            <span>System Console v4.2</span>
+            <span className="animate-pulse text-emerald-400">● Online</span>
+          </div>
+          <div className="h-[1px] w-full bg-cyan-500/20 mb-3" />
+          
+          <div className="space-y-3 font-mono">
+            <div>
+              <div className="text-[11px] text-cyan-300 mb-1 flex justify-between">
+                <span>SYSTEM INTEGRITY</span>
+                <span>{Math.max(20, Math.min(100, 100 - andrewBugs.length * 8))}%</span>
+              </div>
+              <div className="w-full h-2 bg-cyan-950 rounded-full overflow-hidden border border-cyan-500/10">
+                <motion.div
+                  className="h-full bg-gradient-to-r from-rose-500 to-cyan-400"
+                  animate={{ width: `${Math.max(20, Math.min(100, 100 - andrewBugs.length * 8))}%` }}
+                  transition={M3E_EFFECTS}
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-between text-[12px] pt-1">
+              <span className="text-cyan-500/70">GLITCHES SQUASHED:</span>
+              <span className="font-black text-cyan-300 drop-shadow-[0_0_4px_#06b6d4]">{andrewScore}</span>
+            </div>
+
+            <div className="flex justify-between text-[12px]">
+              <span className="text-cyan-500/70">ACTIVE DEVIATIONS:</span>
+              <span className={`font-black ${andrewBugs.length > 0 ? 'text-rose-400 animate-pulse' : 'text-emerald-400'}`}>
+                {andrewBugs.length}
+              </span>
+            </div>
+            
+            <div className="h-[1px] w-full bg-cyan-500/10 my-2" />
+            <p className="text-[9px] text-cyan-500/50 leading-relaxed">
+              Click the member profile card to spawn active deviations. Cleansing glitches increases overall mainframe integrity.
+            </p>
+          </div>
+        </motion.div>
+      )}
+
       {/* Andrew bugs */}
       {isAndrew && andrewBugs.map(bug => (
         <motion.div
@@ -564,13 +825,36 @@ export function ExpandedModal({ activeItem: propActiveItem, setActiveItem, darkM
             repeat: Infinity,
             rotate: { duration: 2, ease: "linear", repeat: Infinity }
           }}
-          className="fixed text-cyan-400 cursor-crosshair"
-          style={{ zIndex: Z_FAB + 5, filter: 'drop-shadow(0 0 10px rgba(34,211,238,0.8))' }}
+          className="fixed text-rose-400 cursor-crosshair flex items-center justify-center"
+          style={{ zIndex: Z_FAB + 5, filter: 'drop-shadow(0 0 12px rgba(244,63,94,0.9))' }}
           onClick={(e) => squashBug(e, bug.id)}
-          whileHover={{ scale: 1.5 }}
+          whileHover={{ scale: 1.6 }}
           whileTap={{ scale: 0.8 }}
         >
-          <Bug size={32} />
+          {/* Cyber-glitch bug effect container */}
+          <div className="relative">
+            <motion.div
+              animate={{
+                x: [-1, 2, -2, 1, -1],
+                y: [1, -1, 2, -1, 1],
+                skewX: [0, 15, -15, 0]
+              }}
+              transition={{ repeat: Infinity, duration: 0.18, repeatType: "mirror" }}
+              className="text-rose-500 font-extrabold text-[9px] select-none absolute -top-4 left-0 font-mono tracking-tighter"
+            >
+              GLITCH!
+            </motion.div>
+            <motion.div
+              animate={{
+                fill: ["#ef4444", "#ec4899", "#8b5cf6", "#ef4444"],
+                scale: [1, 1.15, 0.9, 1]
+              }}
+              transition={{ duration: 0.25, repeat: Infinity }}
+            >
+              <Bug size={38} className="stroke-[2.5]" />
+            </motion.div>
+            <div className="absolute inset-0 bg-cyan-400 mix-blend-overlay opacity-30 blur-[1px] animate-pulse" />
+          </div>
         </motion.div>
       ))}
     </>

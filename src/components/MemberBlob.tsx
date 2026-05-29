@@ -91,7 +91,20 @@ export const MemberBlob = React.memo(({ member, activeItem, onClick, darkMode, l
           >
             <svg viewBox="0 0 120 120" className="w-full h-full overflow-visible">
               <defs>
-                <linearGradient id="andrew-chroma-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <motion.linearGradient
+                  id="andrew-chroma-grad"
+                  animate={{
+                    x1: ["0%", "100%", "100%", "0%", "0%"],
+                    y1: ["0%", "0%", "100%", "100%", "0%"],
+                    x2: ["100%", "0%", "0%", "100%", "100%"],
+                    y2: ["100%", "100%", "0%", "0%", "100%"]
+                  }}
+                  transition={{
+                    duration: 6,
+                    repeat: Infinity,
+                    ease: "linear"
+                  }}
+                >
                   <motion.stop
                     offset="0%"
                     animate={{ stopColor: ["#22d3ee", "#8b5cf6", "#ec4899", "#10b981", "#22d3ee"] }}
@@ -112,30 +125,36 @@ export const MemberBlob = React.memo(({ member, activeItem, onClick, darkMode, l
                     animate={{ stopColor: ["#10b981", "#22d3ee", "#8b5cf6", "#ec4899", "#10b981"] }}
                     transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
                   />
-                </linearGradient>
+                </motion.linearGradient>
               </defs>
-              <circle
+              <motion.circle
                 cx="60" cy="60" r="54"
                 fill="none"
                 stroke="url(#andrew-chroma-grad)"
                 strokeWidth="1.5"
                 strokeDasharray="4 8 12 8"
+                animate={{ strokeDashoffset: [0, 32] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
                 style={{ filter: "drop-shadow(0 0 8px rgba(34,211,238,0.75))" }}
               />
-              <circle
+              <motion.circle
                 cx="60" cy="60" r="58"
                 fill="none"
                 stroke="url(#andrew-chroma-grad)"
                 strokeWidth="1"
                 strokeDasharray="40 10"
+                animate={{ strokeDashoffset: [0, -50] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
                 style={{ opacity: 0.7 }}
               />
-              <circle
+              <motion.circle
                 cx="60" cy="60" r="50"
                 fill="none"
                 stroke="url(#andrew-chroma-grad)"
                 strokeWidth="2"
                 strokeDasharray="20 40 10 30"
+                animate={{ strokeDashoffset: [0, 100] }}
+                transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
                 style={{ filter: "drop-shadow(0 0 4px rgba(139,92,246,0.6))" }}
               />
             </svg>
@@ -232,51 +251,135 @@ export const MemberBlob = React.memo(({ member, activeItem, onClick, darkMode, l
             {/* Andrew orbiting binary particles */}
             {isAndrew && hovered && !isExpanded && (
               <g className="pointer-events-none">
+                {/* Dual-Shell 3D projected code halo */}
+                {/* Shell 1: Outer Shell (Binary, Clockwise, Radius = 64) */}
                 {Array.from({ length: 8 }).map((_, i) => {
                   const angle = (i / 8) * Math.PI * 2;
-                  const radius = 62; // orbit outside the 50px radius blob
+                  const radius = 64;
                   const chromaColors = ["#22d3ee", "#8b5cf6", "#ec4899", "#10b981"];
                   const chromaColor = chromaColors[i % chromaColors.length];
+                  
+                  const pointsCount = 16;
+                  const xKeyframes = Array.from({ length: pointsCount + 1 }).map((_, step) => {
+                    const currentAngle = angle + (step / pointsCount) * Math.PI * 2;
+                    return 50 + radius * Math.cos(currentAngle);
+                  });
+                  const yKeyframes = Array.from({ length: pointsCount + 1 }).map((_, step) => {
+                    const currentAngle = angle + (step / pointsCount) * Math.PI * 2;
+                    return 50 + radius * Math.sin(currentAngle) * 0.35; // 3D Tilt
+                  });
+                  const opacityKeyframes = Array.from({ length: pointsCount + 1 }).map((_, step) => {
+                    const currentAngle = angle + (step / pointsCount) * Math.PI * 2;
+                    const sin = Math.sin(currentAngle);
+                    const normalizedY = (sin + 1) / 2; // 0 to 1
+                    return 0.25 + normalizedY * 0.75;
+                  });
+                  const scaleKeyframes = Array.from({ length: pointsCount + 1 }).map((_, step) => {
+                    const currentAngle = angle + (step / pointsCount) * Math.PI * 2;
+                    const sin = Math.sin(currentAngle);
+                    const normalizedY = (sin + 1) / 2;
+                    return 0.55 + normalizedY * 0.75;
+                  });
+                  const colorKeyframes = Array.from({ length: pointsCount + 1 }).map((_, step) => {
+                    const idx = (i + step) % chromaColors.length;
+                    return chromaColors[idx];
+                  });
+
                   return (
                     <motion.text
-                      key={i}
-                      x={50 + radius * Math.cos(angle)}
-                      y={50 + radius * Math.sin(angle)}
+                      key={`outer-${i}`}
+                      x={xKeyframes[0]}
+                      y={yKeyframes[0]}
                       fill={chromaColor}
-                      fontSize="8"
+                      fontSize="9"
                       fontWeight="black"
                       fontFamily="var(--font-mono)"
                       textAnchor="middle"
                       dominantBaseline="middle"
-                      style={{ filter: `drop-shadow(0 0 6px ${chromaColor})`, opacity: 0.85 }}
+                      style={{ filter: `drop-shadow(0 0 6px ${chromaColor})` }}
                       animate={{
-                        x: [
-                          50 + radius * Math.cos(angle),
-                          50 + radius * Math.cos(angle + Math.PI * 2)
-                        ],
-                        y: [
-                          50 + radius * Math.sin(angle),
-                          50 + radius * Math.sin(angle + Math.PI * 2)
-                        ],
-                        opacity: [0.3, 0.9, 0.3],
-                        scale: [0.8, 1.2, 0.8],
-                        fill: [
-                          chromaColors[i % 4],
-                          chromaColors[(i + 1) % 4],
-                          chromaColors[(i + 2) % 4],
-                          chromaColors[(i + 3) % 4],
-                          chromaColors[i % 4],
-                        ]
+                        x: xKeyframes,
+                        y: yKeyframes,
+                        opacity: opacityKeyframes,
+                        scale: scaleKeyframes,
+                        fill: colorKeyframes
                       }}
                       transition={{
-                        x: { duration: 4 + (i % 3), repeat: Infinity, ease: "linear" },
-                        y: { duration: 4 + (i % 3), repeat: Infinity, ease: "linear" },
-                        fill: { duration: 4 + (i % 3), repeat: Infinity, ease: "linear" },
-                        opacity: { duration: 2, repeat: Infinity, ease: "easeInOut" },
-                        scale: { duration: 2, repeat: Infinity, ease: "easeInOut" },
+                        x: { duration: 6, repeat: Infinity, ease: "linear" },
+                        y: { duration: 6, repeat: Infinity, ease: "linear" },
+                        opacity: { duration: 6, repeat: Infinity, ease: "linear" },
+                        scale: { duration: 6, repeat: Infinity, ease: "linear" },
+                        fill: { duration: 6, repeat: Infinity, ease: "linear" }
                       }}
                     >
                       {i % 2 === 0 ? "1" : "0"}
+                    </motion.text>
+                  );
+                })}
+
+                {/* Shell 2: Inner Shell (Code Glyphs, Counter-Clockwise, Radius = 51) */}
+                {Array.from({ length: 6 }).map((_, i) => {
+                  const angle = (i / 6) * Math.PI * 2;
+                  const radius = 51;
+                  const chromaColors = ["#ec4899", "#10b981", "#22d3ee", "#8b5cf6"];
+                  const chromaColor = chromaColors[i % chromaColors.length];
+                  const glyphs = ["< />", "{}", "[]", "=>", "++", "0x"];
+                  const glyph = glyphs[i % glyphs.length];
+
+                  const pointsCount = 16;
+                  const xKeyframes = Array.from({ length: pointsCount + 1 }).map((_, step) => {
+                    const currentAngle = angle - (step / pointsCount) * Math.PI * 2; // CCW
+                    return 50 + radius * Math.cos(currentAngle);
+                  });
+                  const yKeyframes = Array.from({ length: pointsCount + 1 }).map((_, step) => {
+                    const currentAngle = angle - (step / pointsCount) * Math.PI * 2; // CCW
+                    return 50 + radius * Math.sin(currentAngle) * 0.35; // 3D Tilt
+                  });
+                  const opacityKeyframes = Array.from({ length: pointsCount + 1 }).map((_, step) => {
+                    const currentAngle = angle - (step / pointsCount) * Math.PI * 2;
+                    const sin = Math.sin(currentAngle);
+                    const normalizedY = (sin + 1) / 2;
+                    return 0.2 + normalizedY * 0.7;
+                  });
+                  const scaleKeyframes = Array.from({ length: pointsCount + 1 }).map((_, step) => {
+                    const currentAngle = angle - (step / pointsCount) * Math.PI * 2;
+                    const sin = Math.sin(currentAngle);
+                    const normalizedY = (sin + 1) / 2;
+                    return 0.5 + normalizedY * 0.6;
+                  });
+                  const colorKeyframes = Array.from({ length: pointsCount + 1 }).map((_, step) => {
+                    const idx = (i + step) % chromaColors.length;
+                    return chromaColors[idx];
+                  });
+
+                  return (
+                    <motion.text
+                      key={`inner-${i}`}
+                      x={xKeyframes[0]}
+                      y={yKeyframes[0]}
+                      fill={chromaColor}
+                      fontSize="6.5"
+                      fontWeight="bold"
+                      fontFamily="var(--font-mono)"
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      style={{ filter: `drop-shadow(0 0 4px ${chromaColor})` }}
+                      animate={{
+                        x: xKeyframes,
+                        y: yKeyframes,
+                        opacity: opacityKeyframes,
+                        scale: scaleKeyframes,
+                        fill: colorKeyframes
+                      }}
+                      transition={{
+                        x: { duration: 5, repeat: Infinity, ease: "linear" },
+                        y: { duration: 5, repeat: Infinity, ease: "linear" },
+                        opacity: { duration: 5, repeat: Infinity, ease: "linear" },
+                        scale: { duration: 5, repeat: Infinity, ease: "linear" },
+                        fill: { duration: 5, repeat: Infinity, ease: "linear" }
+                      }}
+                    >
+                      {glyph}
                     </motion.text>
                   );
                 })}
