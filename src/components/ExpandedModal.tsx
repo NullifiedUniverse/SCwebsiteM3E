@@ -163,7 +163,7 @@ function VanessaTurtle() {
   const [state, setState] = useState<
     "crawling" | "resting" | "hiding" | "jumping" |
     "startled" | "retracting" | "hidden" | "peeking" |
-    "eating-prep" | "chewing" | "windup" | "landing"
+    "eating-prep" | "chewing" | "windup" | "landing" | "dancing"
   >("crawling");
   const [direction, setDirection] = useState<1 | -1>(1); // 1 = right, -1 = left
   const [bubbleText, setBubbleText] = useState<string | null>(null);
@@ -171,6 +171,9 @@ function VanessaTurtle() {
   const [hearts, setHearts] = useState<{ id: number; x: number; y: number }[]>([]);
   const [food, setFood] = useState<{ x: number; y: number; active: boolean } | null>(null);
   const [walkStep, setWalkStep] = useState(0);
+  const [energy, setEnergy] = useState(100);
+  const [clickCount, setClickCount] = useState(0);
+  const [binaryTrail, setBinaryTrail] = useState<{ id: number; x: number; y: number; text: string }[]>([]);
 
   const isMounted = useRef(true);
   useEffect(() => {
@@ -195,6 +198,61 @@ function VanessaTurtle() {
   useEffect(() => { directionRef.current = direction; }, [direction]);
   useEffect(() => { foodRef.current = food; }, [food]);
   useEffect(() => { xRef.current = x; }, [x]);
+
+  // Click count resetter (for triple-click petting wiggle detection)
+  useEffect(() => {
+    if (clickCount === 0) return;
+    const clickTimer = setTimeout(() => {
+      if (isMounted.current) setClickCount(0);
+    }, 1500);
+    return () => clearTimeout(clickTimer);
+  }, [clickCount]);
+
+  // Energy depletion ticker (slowly drains energy while crawling)
+  useEffect(() => {
+    const energyInterval = setInterval(() => {
+      const currentState = stateRef.current;
+      if (currentState === "crawling") {
+        setEnergy(prev => {
+          const next = Math.max(0, prev - 2);
+          if (next === 0) {
+            safeSetState("resting");
+            safeSetBubbleText("Tired... out of juice! 🪫");
+            setTimeout(() => {
+              safeSetState("crawling");
+              safeSetBubbleText(null);
+              setEnergy(60); // recovers partial energy
+            }, 4000);
+          } else if (next <= 30 && prev > 30) {
+            safeSetBubbleText("Tired... need strawberry! 🍓");
+            setTimeout(() => safeSetBubbleText(null), 2500);
+          }
+          return next;
+        });
+      }
+    }, 3000);
+    return () => clearInterval(energyInterval);
+  }, []);
+
+  // Tornado flip binary particle trail generator
+  useEffect(() => {
+    if (state !== "jumping") return;
+    const trailInterval = setInterval(() => {
+      const glyphs = ["0", "1", "*", "•", "x", "+", "Err", "[]", "{}"];
+      if (isMounted.current) {
+        setBinaryTrail(prev => [
+          ...prev,
+          {
+            id: Date.now() + Math.random(),
+            x: xRef.current + 30 + Math.random() * 80,
+            y: -10 + Math.random() * -30,
+            text: glyphs[Math.floor(Math.random() * glyphs.length)]
+          }
+        ]);
+      }
+    }, 80);
+    return () => clearInterval(trailInterval);
+  }, [state]);
 
   // Walk animation leg toggler (4 detailed steps for smooth paddling!)
   useEffect(() => {
@@ -296,6 +354,7 @@ function VanessaTurtle() {
           if (Math.abs(dx) < 30) {
             // Eat the food!
             safeSetFood(null);
+            setEnergy(100); // Fully replenished energy!
             
             // Stage 1: Eating Prep (Approach & Sniff)
             safeSetState("eating-prep");
@@ -328,12 +387,15 @@ function VanessaTurtle() {
           } else {
             const dir = dx > 0 ? 1 : -1;
             safeSetDirection(dir);
-            safeSetX(prev => prev + dir * 3.5); // rush speed!
+            // Move faster or slower based on fatigue
+            const speed = energy <= 30 ? 2.0 : 3.5;
+            safeSetX(prev => prev + dir * speed);
           }
         } else {
           // Standard slow crawl
           safeSetX(prev => {
-            let nextX = prev + currentDirection * 1.2;
+            const speed = energy <= 30 ? 0.6 : 1.2;
+            let nextX = prev + currentDirection * speed;
             if (nextX > trackWidth - 170) {
               safeSetDirection(-1);
               return trackWidth - 175;
@@ -349,7 +411,33 @@ function VanessaTurtle() {
     }, 30);
 
     return () => clearInterval(moveInterval);
-  }, []);
+  }, [energy]);
+
+  const TURTLE_QUOTES = [
+    "Slow and steady wins the race... or just takes longer. 🐢",
+    "I am not slow, I am in power-saving mode. 🔋",
+    "My shell is a portable studio apartment. 🏠",
+    "Behold my ultimate power! ⚡",
+    "Turtle is god. Fear my tiny green wrath! 🦖",
+    "I crave the sweet juice of the strawberry! 🍓",
+    "Pro tip: backflips burn 100% more calories. 🌀",
+    "Vanessa is cool, but I am the true mastermind. 🧠"
+  ];
+
+  const handleSpeechBubbleClick = () => {
+    const randQuote = TURTLE_QUOTES[Math.floor(Math.random() * TURTLE_QUOTES.length)];
+    safeSetBubbleText(randQuote);
+    
+    // Spawn happy hearts!
+    const newHearts = Array.from({ length: 2 }).map((_, i) => ({
+      id: Date.now() + i + Math.random(),
+      x: xRef.current + 50 + (Math.random() - 0.5) * 30,
+      y: 0
+    }));
+    safeSetHearts(prev => [...prev, ...newHearts]);
+
+    setTimeout(() => safeSetBubbleText(null), 3500);
+  };
 
   const handleTurtleClick = () => {
     const currentState = stateRef.current;
@@ -364,8 +452,31 @@ function VanessaTurtle() {
       setTimeout(() => safeSetBubbleText(null), 1500);
       return;
     }
-    if (currentState === "jumping" || currentState === "windup" || currentState === "landing") return;
+    if (currentState === "jumping" || currentState === "windup" || currentState === "landing" || currentState === "dancing") return;
     
+    // Petting wiggle dance check
+    const nextCount = clickCount + 1;
+    setClickCount(nextCount);
+
+    if (nextCount >= 3) {
+      setClickCount(0);
+      safeSetState("dancing");
+      safeSetBubbleText("Yay, pets! Happy Wiggle! 🥰");
+      
+      const newHearts = Array.from({ length: 4 }).map((_, i) => ({
+        id: Date.now() + i + Math.random(),
+        x: xRef.current + 30 + Math.random() * 60,
+        y: 0
+      }));
+      safeSetHearts(newHearts);
+
+      setTimeout(() => {
+        safeSetState("crawling");
+        safeSetBubbleText(null);
+      }, 2000);
+      return;
+    }
+
     // Detailed Backflip Squash & Stretch & landing sequence!
     safeSetState("windup");
     safeSetBubbleText("Ready...");
@@ -393,10 +504,11 @@ function VanessaTurtle() {
     // Choose eye based on complex states
     let eye = "o";
     if (state === "resting") eye = "z";
-    else if (state === "jumping" || state === "landing") eye = "^";
+    else if (state === "jumping" || state === "landing" || state === "dancing") eye = "^";
     else if (state === "startled" || state === "retracting" || state === "windup" || state === "eating-prep") eye = "*";
     else if (state === "peeking") eye = "-";
     else if (state === "chewing") eye = walkStep % 2 === 0 ? ">" : "<";
+    else if (energy <= 30) eye = "~"; // Weary/tired eyes
 
     // Detailed 4-step leg paddling sequence
     const getLegs = () => {
@@ -473,6 +585,20 @@ function VanessaTurtle() {
 
   return (
     <div className="absolute bottom-0 left-0 right-0 h-40 pointer-events-none overflow-hidden" style={{ zIndex: 60 }}>
+      {/* Sleek Green God-Mode Terminal HUD */}
+      <div className="absolute top-0 left-4 right-4 flex items-center justify-between font-mono text-[9px] sm:text-[10px] text-emerald-500/80 pointer-events-auto select-none border-b border-emerald-500/20 pb-1">
+        <div className="flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          <span>TURTLE-OS v4.2.0 // GOD_MODE</span>
+        </div>
+        <div className="flex gap-4">
+          <span>X: {Math.round(x)}px</span>
+          <span>DIR: {direction === 1 ? "RIGHT" : "LEFT"}</span>
+          <span>ENGY: {Math.round(energy)}%</span>
+          <span className="uppercase">STATE: {state}</span>
+        </div>
+      </div>
+
       {/* Food element */}
       {food && (
         <motion.div
@@ -485,6 +611,24 @@ function VanessaTurtle() {
           🍓
         </motion.div>
       )}
+
+      {/* Binary trails */}
+      {binaryTrail.map(p => (
+        <motion.div
+          key={p.id}
+          initial={{ opacity: 1, scale: 0.8 }}
+          animate={{ opacity: 0, y: p.y - 60, scale: 1.4, rotate: 360 }}
+          transition={{ duration: 1.0, ease: "easeOut" }}
+          onAnimationComplete={() => setBinaryTrail(prev => prev.filter(item => item.id !== p.id))}
+          className="absolute text-emerald-400 font-mono text-xs font-black select-none pointer-events-none drop-shadow-[0_0_6px_rgba(16,185,129,0.85)]"
+          style={{
+            left: p.x,
+            bottom: 42
+          }}
+        >
+          {p.text}
+        </motion.div>
+      ))}
 
       {/* Floating Hearts */}
       {hearts.map(h => (
@@ -504,10 +648,11 @@ function VanessaTurtle() {
       {/* Speech Bubble */}
       {bubbleText && (
         <motion.div
+          onClick={handleSpeechBubbleClick}
           initial={{ opacity: 0, y: 10, scale: 0.8 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, scale: 0.8 }}
-          className="absolute bg-white text-slate-800 font-bold px-3 py-1.5 rounded-2xl text-[10px] sm:text-xs shadow-lg border border-emerald-100 flex items-center gap-1 select-none font-sans"
+          className="absolute bg-white text-slate-800 font-bold px-3 py-1.5 rounded-2xl text-[10px] sm:text-xs shadow-lg border border-emerald-100 flex items-center gap-1 select-none font-sans pointer-events-auto cursor-pointer"
           style={{
             left: x + 70,
             bottom: 85,
@@ -529,9 +674,9 @@ function VanessaTurtle() {
         }}
         animate={{
           y: state === "jumping" ? [0, -90, 0] : (state === "crawling" || state === "startled" || state === "windup") ? [0, -3, 0] : 0,
-          rotate: state === "jumping" ? [0, 360, 720] : 0,
-          scaleY: state === "windup" ? 0.7 : state === "landing" ? 0.8 : 1,
-          scaleX: state === "windup" ? 1.15 : state === "landing" ? 1.1 : 1
+          rotate: state === "jumping" ? [0, 360, 720] : state === "dancing" ? [-10, 10, -10, 10, -10, 10, 0] : 0,
+          scaleY: state === "windup" ? 0.7 : state === "landing" ? 0.8 : state === "dancing" ? [1, 0.9, 1.05, 0.9, 1.05, 1] : 1,
+          scaleX: state === "windup" ? 1.15 : state === "landing" ? 1.1 : state === "dancing" ? [1, 1.05, 0.95, 1.05, 0.95, 1] : 1
         }}
         exit={{
           x: direction === 1 ? window.innerWidth : -window.innerWidth,
