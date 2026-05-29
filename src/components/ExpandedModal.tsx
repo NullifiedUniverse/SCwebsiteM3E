@@ -40,12 +40,13 @@ function AndrewMatrixRain() {
 
       ctx.font = `${fontSize}px monospace`;
 
-      // Curated vertical chromatic gradient
+      // Curated vertical chromatic gradient shifting dynamically over time
+      const tick = Date.now() * 0.04; // time-based tick
       const chromaGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      chromaGrad.addColorStop(0, "#22d3ee"); // Neon Cyan
-      chromaGrad.addColorStop(0.33, "#8b5cf6"); // Deep Indigo
-      chromaGrad.addColorStop(0.66, "#ec4899"); // Hot Pink
-      chromaGrad.addColorStop(1, "#10b981"); // Emerald
+      chromaGrad.addColorStop(0, `hsl(${tick % 360}, 100%, 65%)`);
+      chromaGrad.addColorStop(0.33, `hsl(${(tick + 90) % 360}, 100%, 65%)`);
+      chromaGrad.addColorStop(0.66, `hsl(${(tick + 180) % 360}, 100%, 65%)`);
+      chromaGrad.addColorStop(1, `hsl(${(tick + 270) % 360}, 100%, 65%)`);
 
       for (let i = 0; i < drops.length; i++) {
         const text = chars[Math.floor(Math.random() * chars.length)];

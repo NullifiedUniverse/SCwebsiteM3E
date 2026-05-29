@@ -92,10 +92,26 @@ export const MemberBlob = React.memo(({ member, activeItem, onClick, darkMode, l
             <svg viewBox="0 0 120 120" className="w-full h-full overflow-visible">
               <defs>
                 <linearGradient id="andrew-chroma-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#22d3ee" /> {/* Neon Cyan */}
-                  <stop offset="35%" stopColor="#8b5cf6" /> {/* Indigo */}
-                  <stop offset="70%" stopColor="#ec4899" /> {/* Hot Pink */}
-                  <stop offset="100%" stopColor="#10b981" /> {/* Emerald */}
+                  <motion.stop
+                    offset="0%"
+                    animate={{ stopColor: ["#22d3ee", "#8b5cf6", "#ec4899", "#10b981", "#22d3ee"] }}
+                    transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+                  />
+                  <motion.stop
+                    offset="35%"
+                    animate={{ stopColor: ["#8b5cf6", "#ec4899", "#10b981", "#22d3ee", "#8b5cf6"] }}
+                    transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+                  />
+                  <motion.stop
+                    offset="70%"
+                    animate={{ stopColor: ["#ec4899", "#10b981", "#22d3ee", "#8b5cf6", "#ec4899"] }}
+                    transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+                  />
+                  <motion.stop
+                    offset="100%"
+                    animate={{ stopColor: ["#10b981", "#22d3ee", "#8b5cf6", "#ec4899", "#10b981"] }}
+                    transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+                  />
                 </linearGradient>
               </defs>
               <circle
@@ -244,11 +260,20 @@ export const MemberBlob = React.memo(({ member, activeItem, onClick, darkMode, l
                         ],
                         opacity: [0.3, 0.9, 0.3],
                         scale: [0.8, 1.2, 0.8],
+                        fill: [
+                          chromaColors[i % 4],
+                          chromaColors[(i + 1) % 4],
+                          chromaColors[(i + 2) % 4],
+                          chromaColors[(i + 3) % 4],
+                          chromaColors[i % 4],
+                        ]
                       }}
                       transition={{
-                        duration: 4 + (i % 3),
-                        repeat: Infinity,
-                        ease: "linear",
+                        x: { duration: 4 + (i % 3), repeat: Infinity, ease: "linear" },
+                        y: { duration: 4 + (i % 3), repeat: Infinity, ease: "linear" },
+                        fill: { duration: 4 + (i % 3), repeat: Infinity, ease: "linear" },
+                        opacity: { duration: 2, repeat: Infinity, ease: "easeInOut" },
+                        scale: { duration: 2, repeat: Infinity, ease: "easeInOut" },
                       }}
                     >
                       {i % 2 === 0 ? "1" : "0"}
