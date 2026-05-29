@@ -158,6 +158,224 @@ function AndrewMatrixRain() {
   );
 }
 
+function VanessaTurtle() {
+  const [x, setX] = useState(-50);
+  const [y, setY] = useState(0);
+  const [state, setState] = useState<"crawling" | "resting" | "hiding" | "jumping">("crawling");
+  const [direction, setDirection] = useState<1 | -1>(1); // 1 = right, -1 = left
+  const [bubbleText, setBubbleText] = useState<string | null>(null);
+  const [turtleRotation, setTurtleRotation] = useState(0);
+  const [hearts, setHearts] = useState<{ id: number; x: number; y: number }[]>([]);
+  const [food, setFood] = useState<{ x: number; y: number; active: boolean } | null>(null);
+
+  useEffect(() => {
+    // Main loop for random turtle actions
+    const interval = setInterval(() => {
+      if (state !== "crawling") return;
+
+      const rand = Math.random();
+      if (rand < 0.15) {
+        // Scared / hide in shell state!
+        setState("hiding");
+        setBubbleText("Scared! 🙈");
+        setTimeout(() => {
+          setState("crawling");
+          setBubbleText(null);
+        }, 2500);
+      } else if (rand < 0.3) {
+        // Rest and take a nap
+        setState("resting");
+        setBubbleText("Sleeping... 💤");
+        setTimeout(() => {
+          setState("crawling");
+          setBubbleText(null);
+        }, 3000);
+      } else if (rand < 0.45 && !food) {
+        // Spawn food! A sweet strawberry falls
+        const screenW = window.innerWidth;
+        const foodX = 100 + Math.random() * (screenW - 200);
+        setFood({ x: foodX, y: -20, active: true });
+        setBubbleText("Ooh, food! 🍓");
+        setTimeout(() => setBubbleText(null), 1500);
+      }
+    }, 6000);
+
+    return () => clearInterval(interval);
+  }, [state, food]);
+
+  // Handle food chase
+  useEffect(() => {
+    if (!food || !food.active) return;
+    
+    // Animate food falling to the bottom edge
+    const fallInterval = setInterval(() => {
+      setFood(f => {
+        if (!f) return null;
+        if (f.y >= 0) {
+          clearInterval(fallInterval);
+          return f;
+        }
+        return { ...f, y: f.y + 2.5 };
+      });
+    }, 30);
+
+    return () => clearInterval(fallInterval);
+  }, [food]);
+
+  // Turtle movement tracking
+  useEffect(() => {
+    const moveInterval = setInterval(() => {
+      const screenW = window.innerWidth;
+
+      if (state === "crawling") {
+        if (food && food.active && food.y >= 0) {
+          // Rush towards food!
+          const dx = food.x - x;
+          if (Math.abs(dx) < 15) {
+            // Eat the food!
+            setFood(null);
+            setState("jumping");
+            setBubbleText("Nom nom nom! 🍓");
+            
+            // Spawn hearts!
+            const newHearts = Array.from({ length: 3 }).map((_, i) => ({
+              id: Date.now() + i + Math.random(),
+              x: 0,
+              y: 0
+            }));
+            setHearts(newHearts);
+
+            setTimeout(() => {
+              setState("crawling");
+              setBubbleText(null);
+            }, 2000);
+          } else {
+            // Set direction toward food
+            const dir = dx > 0 ? 1 : -1;
+            setDirection(dir);
+            setX(prev => prev + dir * 3.5); // move faster for food!
+          }
+        } else {
+          // Standard slow crawl
+          setX(prev => {
+            let nextX = prev + direction * 1.2;
+            if (nextX > screenW + 80) {
+              setDirection(-1);
+              return screenW + 70;
+            }
+            if (nextX < -80) {
+              setDirection(1);
+              return -70;
+            }
+            return nextX;
+          });
+        }
+      }
+    }, 30);
+
+    return () => clearInterval(moveInterval);
+  }, [x, state, direction, food]);
+
+  const handleTurtleClick = () => {
+    if (state === "hiding") {
+      // Scare it more!
+      setBubbleText("Leave me alone! 🥺");
+      setTimeout(() => setBubbleText(null), 1500);
+      return;
+    }
+    if (state === "jumping") return;
+    
+    // Backflip!
+    setState("jumping");
+    setBubbleText("TORNADO FLIP! 🌀");
+    
+    // Animate jump backflip rotation
+    setTurtleRotation(360);
+    setTimeout(() => {
+      setTurtleRotation(0);
+      setState("crawling");
+      setBubbleText(null);
+    }, 1200);
+  };
+
+  // Determine current emoji based on state
+  const turtleEmoji = state === "hiding" ? "🟢" : "🐢";
+
+  return (
+    <div className="fixed bottom-0 left-0 right-0 h-24 pointer-events-none" style={{ zIndex: 60 }}>
+      {/* Food element */}
+      {food && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1, x: food.x, y: food.y - 12 }}
+          className="absolute font-mono text-xl"
+          style={{ bottom: 24 }}
+        >
+          🍓
+        </motion.div>
+      )}
+
+      {/* Floating Hearts */}
+      {hearts.map(h => (
+        <motion.div
+          key={h.id}
+          initial={{ opacity: 1, x: x + 15, y: -10, scale: 0.8 }}
+          animate={{ opacity: 0, y: -80, x: x + 15 + (Math.random() - 0.5) * 50, scale: 1.5 }}
+          transition={{ duration: 1.5, ease: "easeOut" }}
+          onAnimationComplete={() => setHearts(prev => prev.filter(item => item.id !== h.id))}
+          className="absolute text-rose-500 text-lg"
+          style={{ bottom: 24 }}
+        >
+          ❤️
+        </motion.div>
+      ))}
+
+      {/* Speech Bubble */}
+      {bubbleText && (
+        <motion.div
+          initial={{ opacity: 0, y: 10, scale: 0.8 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.8 }}
+          className="absolute bg-white text-slate-800 font-bold px-3 py-1.5 rounded-2xl text-[10px] sm:text-xs shadow-lg border border-emerald-100 flex items-center gap-1 select-none font-sans"
+          style={{
+            left: x - 10,
+            bottom: 60,
+            transform: "translateX(-15%)"
+          }}
+        >
+          <span>{bubbleText}</span>
+          <div className="absolute w-3 h-3 bg-white rotate-45 border-r border-b border-emerald-100 bottom-[-6px] left-[24px]" />
+        </motion.div>
+      )}
+
+      {/* Turtle Element */}
+      <motion.div
+        onClick={handleTurtleClick}
+        className="absolute cursor-pointer pointer-events-auto flex items-center justify-center"
+        style={{
+          left: x,
+          bottom: 12,
+          transform: `scaleX(${direction})`
+        }}
+        animate={{
+          y: state === "jumping" ? [0, -60, 0] : state === "crawling" ? [0, -3, 0] : 0,
+          rotate: turtleRotation
+        }}
+        transition={{
+          y: state === "jumping" ? { duration: 1.0, ease: "easeInOut" } : { duration: 0.6, repeat: Infinity, ease: "easeInOut" }
+        }}
+      >
+        <motion.span
+          className="text-4xl sm:text-5xl inline-block select-none filter drop-shadow-[0_4px_8px_rgba(0,0,0,0.15)] hover:scale-115 transition-transform duration-200"
+          animate={state === "resting" ? { scaleY: 0.8, skewX: 10 } : {}}
+        >
+          {turtleEmoji}
+        </motion.span>
+      </motion.div>
+    </div>
+  );
+}
+
 export function ExpandedModal({ activeItem: propActiveItem, setActiveItem, darkMode, lang }: any) {
   const [activeItem, setActiveItemState] = useState(propActiveItem);
 
@@ -423,7 +641,7 @@ export function ExpandedModal({ activeItem: propActiveItem, setActiveItem, darkM
                   transition={{ duration: 1.5, ease: "easeOut" }}
                   onAnimationComplete={() => setAndrewParticles(arr => arr.filter(item => item.id !== p.id))}
                   className={`fixed font-mono font-bold drop-shadow-[0_0_5px_rgba(34,211,238,0.8)] pointer-events-none whitespace-nowrap ${p.color || 'text-cyan-300'}`}
-                  style={{ zIndex: Z_FAB + 10 }}
+                  style={{ left: 0, top: 0, zIndex: Z_FAB + 10 }}
                 >
                   {p.text}
                 </motion.div>
@@ -438,7 +656,7 @@ export function ExpandedModal({ activeItem: propActiveItem, setActiveItem, darkM
                   transition={{ duration: 1.2, ease: [0.1, 0.8, 0.25, 1.0] }}
                   onAnimationComplete={() => setShardExplosions(arr => arr.filter(item => item.id !== s.id))}
                   className={`fixed font-mono font-bold pointer-events-none ${s.color}`}
-                  style={{ zIndex: Z_FAB + 12, filter: 'drop-shadow(0 0 5px currentColor)' }}
+                  style={{ left: 0, top: 0, zIndex: Z_FAB + 12, filter: 'drop-shadow(0 0 5px currentColor)' }}
                 >
                   {s.text}
                 </motion.div>
@@ -762,57 +980,6 @@ export function ExpandedModal({ activeItem: propActiveItem, setActiveItem, darkM
         </motion.div>
       </motion.div>
 
-      {/* Andrew Cyber Stats Dashboard */}
-      {isAndrew && (
-        <motion.div
-          initial={{ opacity: 0, x: 50, scale: 0.9 }}
-          animate={{ opacity: 1, x: 0, scale: 1 }}
-          transition={{ ...M3E_SPATIAL, delay: 0.2 }}
-          className="fixed top-24 right-6 sm:top-28 sm:right-8 w-64 p-4 rounded-2xl bg-black/60 border border-cyan-500/30 backdrop-blur-md text-cyan-400 select-none shadow-[0_0_24px_rgba(6,182,212,0.15)] overflow-hidden hidden md:block"
-          style={{ zIndex: Z_MODAL - 2 }}
-        >
-          <div className="absolute -top-10 -right-10 w-24 h-24 bg-cyan-500/10 rounded-full blur-xl pointer-events-none" />
-          <div className="font-mono text-[10px] tracking-widest text-cyan-500/60 uppercase mb-2 flex items-center justify-between">
-            <span>System Console v4.2</span>
-            <span className="animate-pulse text-emerald-400">● Online</span>
-          </div>
-          <div className="h-[1px] w-full bg-cyan-500/20 mb-3" />
-          
-          <div className="space-y-3 font-mono">
-            <div>
-              <div className="text-[11px] text-cyan-300 mb-1 flex justify-between">
-                <span>SYSTEM INTEGRITY</span>
-                <span>{Math.max(20, Math.min(100, 100 - andrewBugs.length * 8))}%</span>
-              </div>
-              <div className="w-full h-2 bg-cyan-950 rounded-full overflow-hidden border border-cyan-500/10">
-                <motion.div
-                  className="h-full bg-gradient-to-r from-rose-500 to-cyan-400"
-                  animate={{ width: `${Math.max(20, Math.min(100, 100 - andrewBugs.length * 8))}%` }}
-                  transition={M3E_EFFECTS}
-                />
-              </div>
-            </div>
-
-            <div className="flex justify-between text-[12px] pt-1">
-              <span className="text-cyan-500/70">GLITCHES SQUASHED:</span>
-              <span className="font-black text-cyan-300 drop-shadow-[0_0_4px_#06b6d4]">{andrewScore}</span>
-            </div>
-
-            <div className="flex justify-between text-[12px]">
-              <span className="text-cyan-500/70">ACTIVE DEVIATIONS:</span>
-              <span className={`font-black ${andrewBugs.length > 0 ? 'text-rose-400 animate-pulse' : 'text-emerald-400'}`}>
-                {andrewBugs.length}
-              </span>
-            </div>
-            
-            <div className="h-[1px] w-full bg-cyan-500/10 my-2" />
-            <p className="text-[9px] text-cyan-500/50 leading-relaxed">
-              Click the member profile card to spawn active deviations. Cleansing glitches increases overall mainframe integrity.
-            </p>
-          </div>
-        </motion.div>
-      )}
-
       {/* Andrew bugs */}
       {isAndrew && andrewBugs.map(bug => (
         <motion.div
@@ -826,7 +993,7 @@ export function ExpandedModal({ activeItem: propActiveItem, setActiveItem, darkM
             rotate: { duration: 2, ease: "linear", repeat: Infinity }
           }}
           className="fixed text-rose-400 cursor-crosshair flex items-center justify-center"
-          style={{ zIndex: Z_FAB + 5, filter: 'drop-shadow(0 0 12px rgba(244,63,94,0.9))' }}
+          style={{ left: 0, top: 0, zIndex: Z_FAB + 5, filter: 'drop-shadow(0 0 12px rgba(244,63,94,0.9))' }}
           onClick={(e) => squashBug(e, bug.id)}
           whileHover={{ scale: 1.6 }}
           whileTap={{ scale: 0.8 }}
@@ -857,6 +1024,9 @@ export function ExpandedModal({ activeItem: propActiveItem, setActiveItem, darkM
           </div>
         </motion.div>
       ))}
+
+      {/* Vanessa Liu's interactive turtle companion */}
+      {activeItem?.id === "mem-i3" && <VanessaTurtle />}
     </>
   );
 }
