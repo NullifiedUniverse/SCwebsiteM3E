@@ -78,7 +78,6 @@ export const MemberBlob = React.memo(({ member, activeItem, onClick, darkMode, l
         {/* Andrew holographic neon tech ring */}
         {isAndrew && (
           <motion.div
-            layout
             animate={{
               rotate: 360,
               opacity: isExpanded ? 0 : 0.85
