@@ -65,7 +65,7 @@ export const DEPTS: Record<string, DeptConfig> = {
   "Activities": { name: { EN: "Activities", ZH: "活動部" }, light: "#FFD9E2", textLight: "#3A002A", dark: "#AD1468", textDark: "#FFD9E4", shape: "cookie" },
   "Sec & Treas": { name: { EN: "Sec & Treas", ZH: "秘書與總務部" }, light: "#EADDFF", textLight: "#2A0054", dark: "#7A35D6", textDark: "#EADDFF", shape: "8-leaf clover" },
   "Equipment": { name: { EN: "Equipment", ZH: "器材部" }, light: "#FFDBCC", textLight: "#331100", dark: "#A04500", textDark: "#FFDBCB", shape: "4-sided cookie" },
-  "IT": { name: { EN: "IT", ZH: "資訊部" }, light: "#BCE9FF", textLight: "#001F29", dark: "#006785", textDark: "#BCE9FF", shape: "diamond" },
+  "IT": { name: { EN: "IT", ZH: "資訊部" }, light: "#BCE9FF", textLight: "#001F29", dark: "#006785", textDark: "#BCE9FF", shape: "gear-cookie" },
   "PR": { name: { EN: "PR", ZH: "公關部" }, light: "#A5F5B2", textLight: "#002107", dark: "#007030", textDark: "#A9F5B5", shape: "flower" },
   "Student Rights": { name: { EN: "Student Rights", ZH: "學權部" }, light: "#FFDAD6", textLight: "#410002", dark: "#B80010", textDark: "#FFDAD6", shape: "burst" },
 };

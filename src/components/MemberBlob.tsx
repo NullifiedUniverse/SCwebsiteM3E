@@ -75,21 +75,46 @@ export const MemberBlob = React.memo(({ member, activeItem, onClick, darkMode, l
         }}
         transition={M3E_SPATIAL}
       >
-        {/* Andrew animated border ring */}
+        {/* Andrew holographic neon tech ring */}
         {isAndrew && (
           <motion.div
             layout
             animate={{
               rotate: 360,
-              opacity: isExpanded ? 0 : 0.6
+              opacity: isExpanded ? 0 : 0.85
             }}
             transition={{
-              rotate: { duration: 4, repeat: Infinity, ease: "linear" },
+              rotate: { duration: 6, repeat: Infinity, ease: "linear" },
               opacity: M3E_EFFECTS
             }}
-            className="absolute -inset-2 border-[3px] border-cyan-400 border-dashed pointer-events-none group-hover:scale-110 transition-transform duration-500"
-            style={{ borderRadius: 80, filter: 'drop-shadow(0 0 15px rgba(34,211,238,0.8))' }}
-          />
+            className="absolute -inset-4 pointer-events-none group-hover:scale-108 transition-transform duration-500 flex items-center justify-center"
+          >
+            <svg viewBox="0 0 120 120" className="w-full h-full overflow-visible">
+              <circle
+                cx="60" cy="60" r="54"
+                fill="none"
+                stroke="rgba(34, 211, 238, 0.4)"
+                strokeWidth="1.5"
+                strokeDasharray="4 8 12 8"
+                style={{ filter: "drop-shadow(0 0 8px rgba(6,182,212,0.8))" }}
+              />
+              <circle
+                cx="60" cy="60" r="58"
+                fill="none"
+                stroke="rgba(34, 211, 238, 0.25)"
+                strokeWidth="1"
+                strokeDasharray="40 10"
+              />
+              <circle
+                cx="60" cy="60" r="50"
+                fill="none"
+                stroke="rgba(34, 211, 238, 0.6)"
+                strokeWidth="2"
+                strokeDasharray="20 40 10 30"
+                style={{ filter: "drop-shadow(0 0 4px rgba(6,182,212,0.6))" }}
+              />
+            </svg>
+          </motion.div>
         )}
 
         <motion.div
@@ -176,6 +201,49 @@ export const MemberBlob = React.memo(({ member, activeItem, onClick, darkMode, l
                   animate={{ opacity: hovered ? 1 : 0 }}
                   transition={M3E_EFFECTS}
                 />
+              </g>
+            )}
+
+            {/* Andrew orbiting binary particles */}
+            {isAndrew && hovered && !isExpanded && (
+              <g className="pointer-events-none">
+                {Array.from({ length: 8 }).map((_, i) => {
+                  const angle = (i / 8) * Math.PI * 2;
+                  const radius = 62; // orbit outside the 50px radius blob
+                  return (
+                    <motion.text
+                      key={i}
+                      x={50 + radius * Math.cos(angle)}
+                      y={50 + radius * Math.sin(angle)}
+                      fill="#22d3ee"
+                      fontSize="8"
+                      fontWeight="black"
+                      fontFamily="var(--font-mono)"
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      style={{ filter: "drop-shadow(0 0 6px #06b6d4)", opacity: 0.85 }}
+                      animate={{
+                        x: [
+                          50 + radius * Math.cos(angle),
+                          50 + radius * Math.cos(angle + Math.PI * 2)
+                        ],
+                        y: [
+                          50 + radius * Math.sin(angle),
+                          50 + radius * Math.sin(angle + Math.PI * 2)
+                        ],
+                        opacity: [0.3, 0.9, 0.3],
+                        scale: [0.8, 1.2, 0.8],
+                      }}
+                      transition={{
+                        duration: 4 + (i % 3),
+                        repeat: Infinity,
+                        ease: "linear",
+                      }}
+                    >
+                      {i % 2 === 0 ? "1" : "0"}
+                    </motion.text>
+                  );
+                })}
               </g>
             )}
           </svg>
