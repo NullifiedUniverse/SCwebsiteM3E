@@ -71,6 +71,7 @@ export const MemberBlob = React.memo(({ member, activeItem, onClick, darkMode, l
         style={{
           borderRadius: 100,
           backgroundColor: getAlphaColor(bgColor, 0),
+          boxShadow: "0px 0px 0px rgba(0, 0, 0, 0)",
         }}
         transition={M3E_SPATIAL}
       >
