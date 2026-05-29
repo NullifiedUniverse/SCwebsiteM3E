@@ -80,8 +80,8 @@ export function getPath(type: string, w: number, h: number, seed: number = 0): s
     } else if (type === "4-sided cookie") {
       r = 0.83 + 0.17 * Math.cos(t * 4 + seed);
     } else if (type === "gear-cookie") {
-      // 5-sided blocky gear-cookie, perfect for IT
-      r = 0.85 + 0.13 * Math.sign(Math.cos(t * 5 + seed)) * Math.pow(Math.abs(Math.cos(t * 5 + seed)), 0.35);
+      // 5-sided organic cookie shape, perfect for IT
+      r = 0.86 + 0.14 * Math.cos(t * 5 + seed);
     } else if (type === "8-leaf clover") {
       r = 0.88 + 0.12 * Math.cos(t * 8 + seed);
     } else if (type === "flower") {

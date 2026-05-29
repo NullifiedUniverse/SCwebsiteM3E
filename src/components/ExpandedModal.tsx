@@ -40,6 +40,13 @@ function AndrewMatrixRain() {
 
       ctx.font = `${fontSize}px monospace`;
 
+      // Curated vertical chromatic gradient
+      const chromaGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      chromaGrad.addColorStop(0, "#22d3ee"); // Neon Cyan
+      chromaGrad.addColorStop(0.33, "#8b5cf6"); // Deep Indigo
+      chromaGrad.addColorStop(0.66, "#ec4899"); // Hot Pink
+      chromaGrad.addColorStop(1, "#10b981"); // Emerald
+
       for (let i = 0; i < drops.length; i++) {
         const text = chars[Math.floor(Math.random() * chars.length)];
         const x = i * fontSize;
@@ -48,7 +55,7 @@ function AndrewMatrixRain() {
         if (Math.random() > 0.98) {
           ctx.fillStyle = "#ffffff";
         } else {
-          ctx.fillStyle = "rgba(34, 211, 238, 0.45)";
+          ctx.fillStyle = chromaGrad;
         }
 
         ctx.fillText(text, x, y);

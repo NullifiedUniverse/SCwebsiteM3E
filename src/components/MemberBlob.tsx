@@ -90,28 +90,37 @@ export const MemberBlob = React.memo(({ member, activeItem, onClick, darkMode, l
             className="absolute -inset-4 pointer-events-none group-hover:scale-108 transition-transform duration-500 flex items-center justify-center"
           >
             <svg viewBox="0 0 120 120" className="w-full h-full overflow-visible">
+              <defs>
+                <linearGradient id="andrew-chroma-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#22d3ee" /> {/* Neon Cyan */}
+                  <stop offset="35%" stopColor="#8b5cf6" /> {/* Indigo */}
+                  <stop offset="70%" stopColor="#ec4899" /> {/* Hot Pink */}
+                  <stop offset="100%" stopColor="#10b981" /> {/* Emerald */}
+                </linearGradient>
+              </defs>
               <circle
                 cx="60" cy="60" r="54"
                 fill="none"
-                stroke="rgba(34, 211, 238, 0.4)"
+                stroke="url(#andrew-chroma-grad)"
                 strokeWidth="1.5"
                 strokeDasharray="4 8 12 8"
-                style={{ filter: "drop-shadow(0 0 8px rgba(6,182,212,0.8))" }}
+                style={{ filter: "drop-shadow(0 0 8px rgba(34,211,238,0.75))" }}
               />
               <circle
                 cx="60" cy="60" r="58"
                 fill="none"
-                stroke="rgba(34, 211, 238, 0.25)"
+                stroke="url(#andrew-chroma-grad)"
                 strokeWidth="1"
                 strokeDasharray="40 10"
+                style={{ opacity: 0.7 }}
               />
               <circle
                 cx="60" cy="60" r="50"
                 fill="none"
-                stroke="rgba(34, 211, 238, 0.6)"
+                stroke="url(#andrew-chroma-grad)"
                 strokeWidth="2"
                 strokeDasharray="20 40 10 30"
-                style={{ filter: "drop-shadow(0 0 4px rgba(6,182,212,0.6))" }}
+                style={{ filter: "drop-shadow(0 0 4px rgba(139,92,246,0.6))" }}
               />
             </svg>
           </motion.div>
@@ -210,18 +219,20 @@ export const MemberBlob = React.memo(({ member, activeItem, onClick, darkMode, l
                 {Array.from({ length: 8 }).map((_, i) => {
                   const angle = (i / 8) * Math.PI * 2;
                   const radius = 62; // orbit outside the 50px radius blob
+                  const chromaColors = ["#22d3ee", "#8b5cf6", "#ec4899", "#10b981"];
+                  const chromaColor = chromaColors[i % chromaColors.length];
                   return (
                     <motion.text
                       key={i}
                       x={50 + radius * Math.cos(angle)}
                       y={50 + radius * Math.sin(angle)}
-                      fill="#22d3ee"
+                      fill={chromaColor}
                       fontSize="8"
                       fontWeight="black"
                       fontFamily="var(--font-mono)"
                       textAnchor="middle"
                       dominantBaseline="middle"
-                      style={{ filter: "drop-shadow(0 0 6px #06b6d4)", opacity: 0.85 }}
+                      style={{ filter: `drop-shadow(0 0 6px ${chromaColor})`, opacity: 0.85 }}
                       animate={{
                         x: [
                           50 + radius * Math.cos(angle),
