@@ -160,7 +160,6 @@ function AndrewMatrixRain() {
 
 function VanessaTurtle() {
   const [x, setX] = useState(-50);
-  const [y, setY] = useState(0);
   const [state, setState] = useState<"crawling" | "resting" | "hiding" | "jumping">("crawling");
   const [direction, setDirection] = useState<1 | -1>(1); // 1 = right, -1 = left
   const [bubbleText, setBubbleText] = useState<string | null>(null);
@@ -168,10 +167,22 @@ function VanessaTurtle() {
   const [hearts, setHearts] = useState<{ id: number; x: number; y: number }[]>([]);
   const [food, setFood] = useState<{ x: number; y: number; active: boolean } | null>(null);
 
+  // Store variables in refs to eliminate clear/recreate overhead in 30ms movement loop
+  const stateRef = useRef(state);
+  const directionRef = useRef(direction);
+  const foodRef = useRef(food);
+  const xRef = useRef(x);
+
+  useEffect(() => { stateRef.current = state; }, [state]);
+  useEffect(() => { directionRef.current = direction; }, [direction]);
+  useEffect(() => { foodRef.current = food; }, [food]);
+  useEffect(() => { xRef.current = x; }, [x]);
+
   useEffect(() => {
-    // Main loop for random turtle actions
+    // Main loop for random turtle actions (runs every 6s)
     const interval = setInterval(() => {
-      if (state !== "crawling") return;
+      const currentState = stateRef.current;
+      if (currentState !== "crawling") return;
 
       const rand = Math.random();
       if (rand < 0.15) {
@@ -190,10 +201,10 @@ function VanessaTurtle() {
           setState("crawling");
           setBubbleText(null);
         }, 3000);
-      } else if (rand < 0.45 && !food) {
+      } else if (rand < 0.45 && !foodRef.current) {
         // Spawn food! A sweet strawberry falls
         const screenW = window.innerWidth;
-        const foodX = 100 + Math.random() * (screenW - 200);
+        const foodX = 80 + Math.random() * (Math.min(screenW, 600) - 160);
         setFood({ x: foodX, y: -20, active: true });
         setBubbleText("Ooh, food! 🍓");
         setTimeout(() => setBubbleText(null), 1500);
@@ -201,13 +212,12 @@ function VanessaTurtle() {
     }, 6000);
 
     return () => clearInterval(interval);
-  }, [state, food]);
+  }, []);
 
-  // Handle food chase
+  // Handle food chase gravity
   useEffect(() => {
     if (!food || !food.active) return;
     
-    // Animate food falling to the bottom edge
     const fallInterval = setInterval(() => {
       setFood(f => {
         if (!f) return null;
@@ -222,15 +232,22 @@ function VanessaTurtle() {
     return () => clearInterval(fallInterval);
   }, [food]);
 
-  // Turtle movement tracking
+  // Turtle movement tracking loop (continuous 60fps stable timer)
   useEffect(() => {
     const moveInterval = setInterval(() => {
       const screenW = window.innerWidth;
+      // We cap the track width to fit nicely inside the card modal
+      const trackWidth = Math.min(screenW, 700);
 
-      if (state === "crawling") {
-        if (food && food.active && food.y >= 0) {
+      const currentState = stateRef.current;
+      const currentDirection = directionRef.current;
+      const currentFood = foodRef.current;
+      const currentX = xRef.current;
+
+      if (currentState === "crawling") {
+        if (currentFood && currentFood.active && currentFood.y >= 0) {
           // Rush towards food!
-          const dx = food.x - x;
+          const dx = currentFood.x - currentX;
           if (Math.abs(dx) < 15) {
             // Eat the food!
             setFood(null);
@@ -240,7 +257,7 @@ function VanessaTurtle() {
             // Spawn hearts!
             const newHearts = Array.from({ length: 3 }).map((_, i) => ({
               id: Date.now() + i + Math.random(),
-              x: 0,
+              x: currentX,
               y: 0
             }));
             setHearts(newHearts);
@@ -250,22 +267,21 @@ function VanessaTurtle() {
               setBubbleText(null);
             }, 2000);
           } else {
-            // Set direction toward food
             const dir = dx > 0 ? 1 : -1;
             setDirection(dir);
-            setX(prev => prev + dir * 3.5); // move faster for food!
+            setX(prev => prev + dir * 3.2); // rush speed!
           }
         } else {
           // Standard slow crawl
           setX(prev => {
-            let nextX = prev + direction * 1.2;
-            if (nextX > screenW + 80) {
+            let nextX = prev + currentDirection * 1.0;
+            if (nextX > trackWidth - 100) {
               setDirection(-1);
-              return screenW + 70;
+              return trackWidth - 105;
             }
-            if (nextX < -80) {
+            if (nextX < 20) {
               setDirection(1);
-              return -70;
+              return 25;
             }
             return nextX;
           });
@@ -274,22 +290,21 @@ function VanessaTurtle() {
     }, 30);
 
     return () => clearInterval(moveInterval);
-  }, [x, state, direction, food]);
+  }, []);
 
   const handleTurtleClick = () => {
-    if (state === "hiding") {
-      // Scare it more!
+    const currentState = stateRef.current;
+    if (currentState === "hiding") {
       setBubbleText("Leave me alone! 🥺");
       setTimeout(() => setBubbleText(null), 1500);
       return;
     }
-    if (state === "jumping") return;
+    if (currentState === "jumping") return;
     
     // Backflip!
     setState("jumping");
     setBubbleText("TORNADO FLIP! 🌀");
     
-    // Animate jump backflip rotation
     setTurtleRotation(360);
     setTimeout(() => {
       setTurtleRotation(0);
@@ -298,8 +313,21 @@ function VanessaTurtle() {
     }, 1200);
   };
 
-  // Determine current emoji based on state
-  const turtleEmoji = state === "hiding" ? "🟢" : "🐢";
+  // State-based green retro terminal ASCII Turtle strings (direction-aware, correct directions!)
+  const getAsciiTurtle = () => {
+    const isRight = direction === 1;
+    if (state === "hiding") {
+      return isRight ? "__/\\_(x.x)_/" : "\\_(x.x)_/\\__";
+    }
+    if (state === "resting") {
+      return isRight ? "__/\\_(z.z)_/" : "\\_(z.z)_/\\__";
+    }
+    if (state === "jumping") {
+      return isRight ? "__/\\_(^v^)_/" : "\\_(^v^)_/\\__";
+    }
+    // Crawling / Chasing
+    return isRight ? "__/\\_(°v°)_/" : "\\_(°v°)_/\\__";
+  };
 
   return (
     <div className="absolute bottom-0 left-0 right-0 h-24 pointer-events-none overflow-hidden" style={{ zIndex: 60 }}>
@@ -355,7 +383,6 @@ function VanessaTurtle() {
         style={{
           left: x,
           bottom: 12,
-          transform: `scaleX(${-direction})`
         }}
         animate={{
           y: state === "jumping" ? [0, -60, 0] : state === "crawling" ? [0, -3, 0] : 0,
@@ -374,10 +401,10 @@ function VanessaTurtle() {
         }}
       >
         <motion.span
-          className="text-4xl sm:text-5xl inline-block select-none filter drop-shadow-[0_4px_8px_rgba(0,0,0,0.15)] hover:scale-115 transition-transform duration-200"
+          className="text-sm sm:text-base inline-block select-none text-emerald-400 font-mono font-black drop-shadow-[0_0_8px_rgba(16,185,129,0.95)] hover:scale-115 transition-transform duration-200"
           animate={state === "resting" ? { scaleY: 0.8, skewX: 10 } : {}}
         >
-          {turtleEmoji}
+          {getAsciiTurtle()}
         </motion.span>
       </motion.div>
     </div>
