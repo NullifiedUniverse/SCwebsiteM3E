@@ -249,7 +249,7 @@ export const MemberBlob = React.memo(({ member, activeItem, onClick, darkMode, l
             )}
 
             {/* Andrew orbiting binary particles */}
-            {isAndrew && hovered && !isExpanded && (
+            {isAndrew && !isExpanded && (
               <g className="pointer-events-none">
                 {/* Dual-Shell 3D projected code halo */}
                 {/* Shell 1: Outer Shell (Binary, Clockwise, Radius = 64) */}
@@ -297,19 +297,25 @@ export const MemberBlob = React.memo(({ member, activeItem, onClick, darkMode, l
                       textAnchor="middle"
                       dominantBaseline="middle"
                       style={{ filter: `drop-shadow(0 0 6px ${chromaColor})` }}
-                      animate={{
+                      animate={hovered ? {
                         x: xKeyframes,
                         y: yKeyframes,
                         opacity: opacityKeyframes,
                         scale: scaleKeyframes,
                         fill: colorKeyframes
+                      } : {
+                        scale: 0,
+                        opacity: 0
                       }}
-                      transition={{
+                      transition={hovered ? {
                         x: { duration: 6, repeat: Infinity, ease: "linear" },
                         y: { duration: 6, repeat: Infinity, ease: "linear" },
                         opacity: { duration: 6, repeat: Infinity, ease: "linear" },
                         scale: { duration: 6, repeat: Infinity, ease: "linear" },
                         fill: { duration: 6, repeat: Infinity, ease: "linear" }
+                      } : {
+                        duration: 0.35,
+                        ease: "easeInOut"
                       }}
                     >
                       {i % 2 === 0 ? "1" : "0"}
@@ -364,19 +370,25 @@ export const MemberBlob = React.memo(({ member, activeItem, onClick, darkMode, l
                       textAnchor="middle"
                       dominantBaseline="middle"
                       style={{ filter: `drop-shadow(0 0 4px ${chromaColor})` }}
-                      animate={{
+                      animate={hovered ? {
                         x: xKeyframes,
                         y: yKeyframes,
                         opacity: opacityKeyframes,
                         scale: scaleKeyframes,
                         fill: colorKeyframes
+                      } : {
+                        scale: 0,
+                        opacity: 0
                       }}
-                      transition={{
+                      transition={hovered ? {
                         x: { duration: 5, repeat: Infinity, ease: "linear" },
                         y: { duration: 5, repeat: Infinity, ease: "linear" },
                         opacity: { duration: 5, repeat: Infinity, ease: "linear" },
                         scale: { duration: 5, repeat: Infinity, ease: "linear" },
                         fill: { duration: 5, repeat: Infinity, ease: "linear" }
+                      } : {
+                        duration: 0.35,
+                        ease: "easeInOut"
                       }}
                     >
                       {glyph}

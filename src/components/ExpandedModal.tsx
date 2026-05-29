@@ -302,7 +302,7 @@ function VanessaTurtle() {
   const turtleEmoji = state === "hiding" ? "🟢" : "🐢";
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 h-24 pointer-events-none" style={{ zIndex: 60 }}>
+    <div className="absolute bottom-0 left-0 right-0 h-24 pointer-events-none overflow-hidden" style={{ zIndex: 60 }}>
       {/* Food element */}
       {food && (
         <motion.div
@@ -355,11 +355,19 @@ function VanessaTurtle() {
         style={{
           left: x,
           bottom: 12,
-          transform: `scaleX(${direction})`
+          transform: `scaleX(${-direction})`
         }}
         animate={{
           y: state === "jumping" ? [0, -60, 0] : state === "crawling" ? [0, -3, 0] : 0,
           rotate: turtleRotation
+        }}
+        exit={{
+          x: direction === 1 ? window.innerWidth : -window.innerWidth,
+          y: -150,
+          rotate: [0, 720],
+          scale: 0.2,
+          opacity: 0,
+          transition: { duration: 0.8, ease: "easeIn" }
         }}
         transition={{
           y: state === "jumping" ? { duration: 1.0, ease: "easeInOut" } : { duration: 0.6, repeat: Infinity, ease: "easeInOut" }
@@ -977,6 +985,8 @@ export function ExpandedModal({ activeItem: propActiveItem, setActiveItem, darkM
               </motion.div>
             </motion.button>
           </div>
+          {/* Vanessa Liu's interactive turtle companion */}
+          {activeItem?.id === "mem-i3" && <VanessaTurtle />}
         </motion.div>
       </motion.div>
 
@@ -1024,9 +1034,6 @@ export function ExpandedModal({ activeItem: propActiveItem, setActiveItem, darkM
           </div>
         </motion.div>
       ))}
-
-      {/* Vanessa Liu's interactive turtle companion */}
-      {activeItem?.id === "mem-i3" && <VanessaTurtle />}
     </>
   );
 }
