@@ -155,8 +155,9 @@ export const MemberBlob = React.memo(({ member, activeItem, onClick, darkMode, l
 
             {/* Member image */}
             {imageUrl && !imgFailed && (
-              <g transform="translate(4, 4) scale(0.92)" clipPath={`url(#clip-img-${uid})`}>
+              <g transform="translate(4, 4) scale(0.92)">
                 <motion.image
+                  clipPath={`url(#clip-img-${uid})`}
                   animate={{ scale: hovered ? 1.04 : 1, x: hovered ? -2 : 0, y: hovered ? -2 : 0 }}
                   transition={M3E_EFFECTS}
                   href={encodeURI(imageUrl)}
@@ -168,9 +169,9 @@ export const MemberBlob = React.memo(({ member, activeItem, onClick, darkMode, l
                 />
                 {/* Image sheen */}
                 <motion.rect
+                  clipPath={`url(#clip-img-${uid})`}
                   x="0" y="0" width="100" height="100"
                   fill={`url(#glass-grad-${uid})`}
-                  clipPath={`url(#clip-img-${uid})`}
                   className="mix-blend-overlay"
                   animate={{ opacity: hovered ? 1 : 0 }}
                   transition={M3E_EFFECTS}

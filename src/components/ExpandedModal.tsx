@@ -423,8 +423,9 @@ export function ExpandedModal({ activeItem: propActiveItem, setActiveItem, darkM
                     animate={{ rotate: 360 }}
                     transition={{ duration: 16 + (activeItem.seed % 5), repeat: Infinity, ease: "linear" }}
                   />
-                  <g transform="translate(3, 3) scale(0.94)" clipPath={`url(#modal-clip-img-${activeItem.id})`}>
+                  <g transform="translate(3, 3) scale(0.94)">
                     <image
+                      clipPath={`url(#modal-clip-img-${activeItem.id})`}
                       href={encodeURI(activeItem.image)}
                       x="0" y="0" width="100" height="100"
                       preserveAspectRatio="xMidYMid slice"
