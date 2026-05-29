@@ -80,12 +80,156 @@ export const CMS: CMSData = {
     image: ""
   },
   events: [
-    { id: "ev-1", type: "event", title: { EN: "End of Year Prom", ZH: "林口康橋年末舞會" }, desc: { EN: "An chaotic evening for students to celebrate the end of the academic year with music, dancing, and lasting memories.", ZH: "專屬學生的狂歡晚會，透過音樂與舞蹈慶祝學年結束並創造美好回憶。" }, date: "MAY 24", colorLight: "#E8DEF8", textLight: "#1D192B", colorDark: "#4A4458", textDark: "#E8DEF8", image: "" },
-    { id: "ev-2", type: "event", title: { EN: "KCISLK Voice Contest", ZH: "康橋好聲音" }, desc: { EN: "A school-wide singing competition showcasing students' vocal talents and musical performances.", ZH: "全校性的歌唱比賽，提供學生展現歌唱才華與勇氣自信的舞台。" }, date: "APR 12", colorLight: "#FFD9E2", textLight: "#3E001D", colorDark: "#631133", textDark: "#FFD9E2", image: "" },
-    { id: "ev-3", type: "event", title: { EN: "Secondary School Interclass Basketball Tournament", ZH: "中學部班際籃球比賽" }, desc: { EN: "A competitive basketball tournament to foster class unity, sportsmanship, and athletic excellence across the secondary school.", ZH: "促進班級凝聚力、運動家精神與體育交流的中學部籃球賽事。" }, date: "MAR 10", colorLight: "#FFDCBE", textLight: "#2C1600", colorDark: "#4A2800", textDark: "#FFDCBE", image: "" },
-    { id: "ev-4", type: "event", title: { EN: "Mother’s day", ZH: "母親節活動" }, desc: { EN: "Special activities dedicated to expressing gratitude and celebrating mothers within our daily life.", ZH: "專為表達感恩之情所舉辦的特別活動，慶祝並感謝生活中的母親們。" }, date: "MAY 10", colorLight: "#FCE7F3", textLight: "#4E082A", colorDark: "#710B3B", textDark: "#FCE7F3", image: "" },
-    { id: "ev-5", type: "event", title: { EN: "Denim Day", ZH: "丹寧日" }, desc: { EN: "A designated day where students wear denim to raise awareness for sexual assault prevention and show support for survivors.", ZH: "鼓勵學生穿著丹寧服飾的響應日，提升對性侵防治的意識並聲援受害者。" }, date: "APR 24", colorLight: "#C2E7FF", textLight: "#001D35", colorDark: "#003458", textDark: "#C2E7FF", image: "" },
-    { id: "ev-6", type: "event", title: { EN: "Voice & Vision Assembly", ZH: "學生大會" }, desc: { EN: "Student Council assembly to discuss student rights and gather students’ feedback.", ZH: "學生會與學生代表集會，討論學生權益並收集意見。" }, date: "OCT 05", colorLight: "#E0E7FF", textLight: "#1E1B4B", colorDark: "#2C2C6A", textDark: "#E0E7FF", image: "" },
+    {
+      id: "ev-teacher-day",
+      type: "event",
+      title: { EN: "Teacher's Day Celebration", ZH: "教師節感恩活動" },
+      desc: {
+        EN: "To thank our teachers for their dedicated guidance and care, the Student Council is organizing a warm gratitude campaign. Students will prepare hand-made cards and snacks to present to classroom teachers and administrative staff, fostering a friendly, respectful campus atmosphere and enhancing teacher-student bonding.",
+        ZH: "為感謝教師平日對學生的用心教導與照顧，學生會於教師節期間舉辦感恩活動，由學生親手製作卡片並準備點心，送給各班老師及行政師長，表達祝福與感謝之意。活動期間也安排校園感恩宣傳與拍照紀錄，營造溫馨友善的校園氛圍。透過實際行動，讓學生學習感恩與尊重，並增進師生間的情感交流與互動。"
+      },
+      date: "SEP 26",
+      colorLight: "#FFD9E2",
+      textLight: "#3E001D",
+      colorDark: "#631133",
+      textDark: "#FFD9E2",
+      image: ""
+    },
+    {
+      id: "ev-halloween",
+      type: "event",
+      title: { EN: "Halloween Haunted House", ZH: "萬聖節鬼屋體驗" },
+      desc: {
+        EN: "Get ready for a thrilling, immersive Halloween experience! The Student Council is building a large-scale haunted house featuring eerie scene designs, role-playing, and atmospheric sound effects. Different zones host special themed challenges and scares, and all students are encouraged to dress up in creative costumes to light up the festive campus mood.",
+        ZH: "學生會於萬聖節舉辦大型鬼屋體驗活動，結合場景布置、角色扮演及音效設計，打造沉浸式節慶體驗。活動由學生共同參與策劃與佈置，不同區域設有主題關卡與驚嚇橋段，提升活動趣味性與參與感。此外，也鼓勵學生進行萬聖節變裝，增添校園節慶氣氛。透過活動培養學生創意、團隊合作能力及活動執行經驗。"
+      },
+      date: "OCT 27 - 31",
+      colorLight: "#FFDCC0",
+      textLight: "#2E1500",
+      colorDark: "#522700",
+      textDark: "#FFDCC0",
+      image: ""
+    },
+    {
+      id: "ev-sports-day",
+      type: "event",
+      title: { EN: "Sports Day & Carnival", ZH: "校慶運動會與園遊會" },
+      desc: {
+        EN: "Join our signature campus-wide event combining athletic competitions, fun recreation games, and a bustling festival market! The Student Council is planning a rich variety of food, beverage, and snack stalls for students and faculty to relax and mingle. We are also setting up a dedicated lost-and-found desk to assist everyone. Let's unite, build teamwork, and elevate school spirit!",
+        ZH: "運動會除了田徑與趣味競賽外，學生會也規劃攤位活動，販售食物與飲品，增加活動熱鬧程度與學生參與感。攤位內容多元，包括點心、飲料及特色小吃，不僅提供師生休息與交流空間，還提供失物招領服務台的功能。整體活動結合運動競賽與園遊會形式，提升校園凝聚力與團體合作精神。"
+      },
+      date: "DEC 12",
+      colorLight: "#D7E3FF",
+      textLight: "#001B3F",
+      colorDark: "#0056B3",
+      textDark: "#E0EAFF",
+      image: ""
+    },
+    {
+      id: "ev-christmas",
+      type: "event",
+      title: { EN: "Christmas Dress-Up Celebration", ZH: "聖誕變裝慶典" },
+      desc: {
+        EN: "Celebrate the warmth and joy of the holiday season! The Student Council is hosting a Christmas Dress-Up Day. We encourage all students and teachers to wear holiday outfits, such as Santa Claus, reindeer, or other creative costumes. This lighthearted day will fill the school with festive cheer and enhance interactive, warm campus cultures.",
+        ZH: "學生會於聖誕節期間舉辦節慶變裝活動，鼓勵學生與老師穿著聖誕主題服裝參與校園活動，例如聖誕老人、麋鹿及各類創意造型，增添節日歡樂氣氛，讓學生能在輕鬆愉快的環境中感受節慶氛圍。透過活動提升學生創意表現與校園互動，營造溫暖且具凝聚力的校園文化。"
+      },
+      date: "DEC 24",
+      colorLight: "#FFDAD6",
+      textLight: "#410002",
+      colorDark: "#B80010",
+      textDark: "#FFDAD6",
+      image: ""
+    },
+    {
+      id: "ev-mothers-day",
+      type: "event",
+      title: { EN: "Mother's Day Gratitude Activity", ZH: "母親節感恩活動" },
+      desc: {
+        EN: "Show your deepest appreciation and love for mothers during our Mother's Day gratitude campaign! Students can handcraft beautiful appreciation cards and share heartfelt messages on the blessing boards. Beautifully arranged campus photo areas with instant print-on-demand cameras will be ready for students to capture and print warm family memories on the spot.",
+        ZH: "學生會於母親節期間舉辦感恩活動，透過卡片製作、留言板及祝福傳遞等方式，鼓勵學生向母親表達感謝與關懷。校園內也設置相關布置與拍照區，讓學生能以不同方式紀錄與分享對家人的感謝之情，並且即拍即印，讓學生在感恩的時刻留下溫馨的回憶。活動藉由溫馨主題，提升學生對親情與家庭價值的重視。"
+      },
+      date: "MAY 14",
+      colorLight: "#FCE7F3",
+      textLight: "#4E082A",
+      colorDark: "#710B3B",
+      textDark: "#FCE7F3",
+      image: ""
+    },
+    {
+      id: "ev-summer-festival",
+      type: "event",
+      title: { EN: "Japanese Summer Festival", ZH: "日式夏季祭典" },
+      desc: {
+        EN: "Celebrate the start of summer with our traditional Japanese festival! Enjoy a spectacular array of stall games, authentic street foods, and vibrant live stage performances. In addition to joining the fun, students will also actively plan and operate the booths, gaining valuable teamwork, leadership, and communication experience amidst warm lantern decorations.",
+        ZH: "夏季祭典以日式祭典為主題，結合攤位遊戲、美食販售及舞台表演，打造具有文化特色與夏日氣氛的大型校園活動。學生除了參與活動，也能實際負責攤位經營與活動規劃，培養合作與溝通能力。現場透過燈飾與主題布置，營造熱鬧且具沉浸感的祭典氛圍。"
+      },
+      date: "JUN 22",
+      colorLight: "#BCE9FF",
+      textLight: "#001F29",
+      colorDark: "#006785",
+      textDark: "#BCE9FF",
+      image: ""
+    },
+    {
+      id: "ev-denim-day",
+      type: "event",
+      title: { EN: "Denim Day Campaign", ZH: "丹寧日宣導活動" },
+      desc: {
+        EN: "Let's stand together to support gender equality and sexual assault prevention on Denim Day. Students and teachers respond by wearing denim apparel to show solidarity. The Student Council will distribute informative resources and host campus activities, striving to raise empathy, raise consciousness on critical social topics, and nurture a safe, respectful school environment.",
+        ZH: "丹寧日活動旨在提升學生對性別平等與尊重議題的關注，學生與教師透過穿著丹寧服飾共同響應活動。學生會也進行相關宣導與資訊分享，希望透過校園參與方式，提升學生對社會議題的認識與同理心，建立友善且尊重的校園環境。"
+      },
+      date: "APR 29",
+      colorLight: "#C2E7FF",
+      textLight: "#001D35",
+      colorDark: "#003458",
+      textDark: "#C2E7FF",
+      image: ""
+    },
+    {
+      id: "ev-voice-contest",
+      type: "event",
+      title: { EN: "Kang Chiao Golden Voice", ZH: "康橋好聲音歌唱比賽" },
+      desc: {
+        EN: "The annual singing contest provides a premier stage for students to showcase their musical and performance talents. Divided into thrilling preliminary and grand final rounds, this event fills the school with a wonderful artistic vibe. The Student Council is responsible for full stage coordination, audio setup, and schedule planning to guarantee an outstanding show.",
+        ZH: "康橋好聲音歌唱比賽提供學生展現音樂與表演才華的平台，活動分為初賽與決賽，吸引許多學生參與及觀賞。參賽者透過歌唱表演展現自信與舞台魅力，也讓校園充滿音樂與藝文氣息。學生會負責舞台安排、音響設備及活動流程規劃，提升整體活動品質與觀賞性。"
+      },
+      date: "MAY 06 - 07",
+      colorLight: "#EADDFF",
+      textLight: "#2A0054",
+      colorDark: "#7A35D6",
+      textDark: "#EADDFF",
+      image: ""
+    },
+    {
+      id: "ev-basketball",
+      type: "event",
+      title: { EN: "Interclass Basketball Tournament", ZH: "中學部班際籃球錦標賽" },
+      desc: {
+        EN: "Ignite your class spirit, athletic passion, and teamwork in the secondary school basketball championship! Represent your class in competitive games. The Student Council coordinates all scheduling, official scoring, and court safety. Featuring both 3v3 and 5v5 formats in different sessions, these tournaments provide fantastic bonding opportunities.",
+        ZH: "班際籃球賽由各班組隊參賽，透過競技比賽培養學生團隊合作與運動家精神。學生會負責安排賽程、記錄比分及維持現場秩序，確保比賽公平順利進行。兩屆分別是3v3 和5v5，不同賽制活動，不僅提升學生對運動的參與度，也增進班級凝聚力與同儕互動。"
+      },
+      date: "APR 07 - MAY 22",
+      colorLight: "#FFDBCC",
+      textLight: "#331100",
+      colorDark: "#A04500",
+      textDark: "#FFDBCB",
+      image: ""
+    },
+    {
+      id: "ev-prom",
+      type: "event",
+      title: { EN: "KCISLK Year-End Prom", ZH: "林口康橋年末主題舞會" },
+      desc: {
+        EN: "Celebrate a spectacular end to the academic year at our highly anticipated Year-End Prom! Blending live music, social dancing, and student performances, it is the perfect evening for students to relax and connect. Special guest singers, professional ballroom dance hours, and exquisite light displays will combine to make this an unforgettable high school memory.",
+        ZH: "年末舞會為學年度重要大型活動之一，結合交際舞、音樂演出與舞台表演，提供學生放鬆與交流的機會。活動邀請歌手進行現場演出，並安排舞蹈時段與燈光效果，營造正式且熱鬧的活動氛圍。透過舞會活動，學生能留下難忘的校園回憶，也為學年畫下精彩句點。"
+      },
+      date: "DEC 28",
+      colorLight: "#E8DEF8",
+      textLight: "#1D192B",
+      colorDark: "#4A4458",
+      textDark: "#E8DEF8",
+      image: ""
+    }
   ],
   members: [
     { id: "mem-p1", type: "member", name: "Noah Dok 曾子銘", gen: "7th", role: { EN: "President", ZH: "會長" }, class: "11E", dept: "Presidential", about: { EN: "I balance school life with playing basketball and taking photos, and often find inspiration in social issues and family travels.", ZH: "在忙碌的校園生活之餘，我喜歡透過拍照、聽音樂和打籃球來切換心情。我對社會議題有濃厚好奇心。" }, expectation: { EN: "My goal is a campus where everyone feels at home. I'm here to improve our school life.", ZH: "我希望能強化校園的凝聚力，讓每位同學在康橋都能找到歸屬感。" }, responsibility: { EN: "As President, I lead all departments in organizing school events and facilitate cross-departmental communication.", ZH: "身為學生會長，我的職責是統籌各項學生會舉辦的全校性活動，並協調部會間的溝通與合作。" }, seed: 101, image: "/photos/Photo 2/Leadership/Noah Dok _ 曾子銘.png" },
