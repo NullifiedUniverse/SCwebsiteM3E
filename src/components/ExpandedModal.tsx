@@ -159,13 +159,14 @@ function AndrewMatrixRain() {
 }
 
 function VanessaTurtle() {
-  const [x, setX] = useState(-50);
+  const [x, setX] = useState(-150); // Start off-screen nicely for the wide turtle
   const [state, setState] = useState<"crawling" | "resting" | "hiding" | "jumping">("crawling");
   const [direction, setDirection] = useState<1 | -1>(1); // 1 = right, -1 = left
   const [bubbleText, setBubbleText] = useState<string | null>(null);
   const [turtleRotation, setTurtleRotation] = useState(0);
   const [hearts, setHearts] = useState<{ id: number; x: number; y: number }[]>([]);
   const [food, setFood] = useState<{ x: number; y: number; active: boolean } | null>(null);
+  const [walkCycle, setWalkCycle] = useState(true);
 
   // Store variables in refs to eliminate clear/recreate overhead in 30ms movement loop
   const stateRef = useRef(state);
@@ -177,6 +178,14 @@ function VanessaTurtle() {
   useEffect(() => { directionRef.current = direction; }, [direction]);
   useEffect(() => { foodRef.current = food; }, [food]);
   useEffect(() => { xRef.current = x; }, [x]);
+
+  // Walk animation leg toggler
+  useEffect(() => {
+    const walkInterval = setInterval(() => {
+      setWalkCycle(prev => !prev);
+    }, 200);
+    return () => clearInterval(walkInterval);
+  }, []);
 
   useEffect(() => {
     // Main loop for random turtle actions (runs every 6s)
@@ -205,7 +214,7 @@ function VanessaTurtle() {
         // Spawn food! A sweet strawberry falls
         const screenW = window.innerWidth;
         const foodX = 80 + Math.random() * (Math.min(screenW, 600) - 160);
-        setFood({ x: foodX, y: -20, active: true });
+        setFood({ x: foodX, y: -40, active: true });
         setBubbleText("Ooh, food! 🍓");
         setTimeout(() => setBubbleText(null), 1500);
       }
@@ -225,7 +234,7 @@ function VanessaTurtle() {
           clearInterval(fallInterval);
           return f;
         }
-        return { ...f, y: f.y + 2.5 };
+        return { ...f, y: f.y + 3.0 };
       });
     }, 30);
 
@@ -237,7 +246,7 @@ function VanessaTurtle() {
     const moveInterval = setInterval(() => {
       const screenW = window.innerWidth;
       // We cap the track width to fit nicely inside the card modal
-      const trackWidth = Math.min(screenW, 700);
+      const trackWidth = Math.min(screenW - 40, 880);
 
       const currentState = stateRef.current;
       const currentDirection = directionRef.current;
@@ -247,8 +256,9 @@ function VanessaTurtle() {
       if (currentState === "crawling") {
         if (currentFood && currentFood.active && currentFood.y >= 0) {
           // Rush towards food!
-          const dx = currentFood.x - currentX;
-          if (Math.abs(dx) < 15) {
+          const headX = currentDirection === 1 ? currentX + 130 : currentX + 10;
+          const dx = currentFood.x - headX;
+          if (Math.abs(dx) < 30) {
             // Eat the food!
             setFood(null);
             setState("jumping");
@@ -257,7 +267,7 @@ function VanessaTurtle() {
             // Spawn hearts!
             const newHearts = Array.from({ length: 3 }).map((_, i) => ({
               id: Date.now() + i + Math.random(),
-              x: currentX,
+              x: currentX + 60,
               y: 0
             }));
             setHearts(newHearts);
@@ -269,19 +279,19 @@ function VanessaTurtle() {
           } else {
             const dir = dx > 0 ? 1 : -1;
             setDirection(dir);
-            setX(prev => prev + dir * 3.2); // rush speed!
+            setX(prev => prev + dir * 3.5); // rush speed!
           }
         } else {
           // Standard slow crawl
           setX(prev => {
-            let nextX = prev + currentDirection * 1.0;
-            if (nextX > trackWidth - 100) {
+            let nextX = prev + currentDirection * 1.2;
+            if (nextX > trackWidth - 170) {
               setDirection(-1);
-              return trackWidth - 105;
+              return trackWidth - 175;
             }
-            if (nextX < 20) {
+            if (nextX < 10) {
               setDirection(1);
-              return 25;
+              return 15;
             }
             return nextX;
           });
@@ -316,17 +326,46 @@ function VanessaTurtle() {
   // State-based green retro terminal ASCII Turtle strings (direction-aware, correct directions!)
   const getAsciiTurtle = () => {
     const isRight = direction === 1;
-    if (state === "hiding") {
-      return isRight ? "__/\\_(x.x)_/" : "\\_(x.x)_/\\__";
+    const eye = state === "resting" ? "z" : state === "jumping" ? "^" : "o";
+    const legs = (state === "crawling" || state === "jumping")
+      ? (walkCycle ? "|_|_| |_|_|" : "| | | | | |")
+      : "|_|_| |_|_|";
+
+    if (isRight) {
+      if (state === "hiding") {
+        return [
+          "  _____",
+          " /      \\",
+          "|        |",
+          "|_________/",
+          legs
+        ].join("\n");
+      }
+      return [
+        "  _____     ____",
+        ` /      \\  |  ${eye} | `,
+        "|        |/ ___\\| ",
+        "|_________/     ",
+        legs
+      ].join("\n");
+    } else {
+      if (state === "hiding") {
+        return [
+          "           _____  ",
+          "         /      \\ ",
+          "         |        |",
+          "       \\_________|",
+          `       ${legs}`
+        ].join("\n");
+      }
+      return [
+        "  ____     _____  ",
+        ` |  ${eye} |  /      \\ `,
+        " |/ ___ \\|        |",
+        "       \\_________|",
+        `       ${legs}`
+      ].join("\n");
     }
-    if (state === "resting") {
-      return isRight ? "__/\\_(z.z)_/" : "\\_(z.z)_/\\__";
-    }
-    if (state === "jumping") {
-      return isRight ? "__/\\_(^v^)_/" : "\\_(^v^)_/\\__";
-    }
-    // Crawling / Chasing
-    return isRight ? "__/\\_(°v°)_/" : "\\_(°v°)_/\\__";
   };
 
   return (
@@ -334,10 +373,11 @@ function VanessaTurtle() {
       {/* Food element */}
       {food && (
         <motion.div
+          key="food-strawberry"
           initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1, x: food.x, y: food.y - 12 }}
-          className="absolute font-mono text-xl"
-          style={{ bottom: 24 }}
+          animate={{ opacity: 1, scale: 1, x: food.x, y: food.y }}
+          className="absolute font-mono text-xl z-20"
+          style={{ bottom: 36 }}
         >
           🍓
         </motion.div>
@@ -347,12 +387,12 @@ function VanessaTurtle() {
       {hearts.map(h => (
         <motion.div
           key={h.id}
-          initial={{ opacity: 1, x: x + 15, y: -10, scale: 0.8 }}
-          animate={{ opacity: 0, y: -80, x: x + 15 + (Math.random() - 0.5) * 50, scale: 1.5 }}
+          initial={{ opacity: 1, x: h.x, y: -10, scale: 0.8 }}
+          animate={{ opacity: 0, y: -80, x: h.x + (Math.random() - 0.5) * 50, scale: 1.5 }}
           transition={{ duration: 1.5, ease: "easeOut" }}
           onAnimationComplete={() => setHearts(prev => prev.filter(item => item.id !== h.id))}
           className="absolute text-rose-500 text-lg"
-          style={{ bottom: 24 }}
+          style={{ bottom: 36 }}
         >
           ❤️
         </motion.div>
@@ -366,13 +406,13 @@ function VanessaTurtle() {
           exit={{ opacity: 0, scale: 0.8 }}
           className="absolute bg-white text-slate-800 font-bold px-3 py-1.5 rounded-2xl text-[10px] sm:text-xs shadow-lg border border-emerald-100 flex items-center gap-1 select-none font-sans"
           style={{
-            left: x - 10,
-            bottom: 60,
-            transform: "translateX(-15%)"
+            left: x + 70,
+            bottom: 75,
+            transform: "translateX(-50%)"
           }}
         >
           <span>{bubbleText}</span>
-          <div className="absolute w-3 h-3 bg-white rotate-45 border-r border-b border-emerald-100 bottom-[-6px] left-[24px]" />
+          <div className="absolute w-3 h-3 bg-white rotate-45 border-r border-b border-emerald-100 bottom-[-6px] left-[50%] translate-x-[-50%]" />
         </motion.div>
       )}
 
@@ -382,7 +422,7 @@ function VanessaTurtle() {
         className="absolute cursor-pointer pointer-events-auto flex items-center justify-center"
         style={{
           left: x,
-          bottom: 12,
+          bottom: 4,
         }}
         animate={{
           y: state === "jumping" ? [0, -60, 0] : state === "crawling" ? [0, -3, 0] : 0,
@@ -400,12 +440,18 @@ function VanessaTurtle() {
           y: state === "jumping" ? { duration: 1.0, ease: "easeInOut" } : { duration: 0.6, repeat: Infinity, ease: "easeInOut" }
         }}
       >
-        <motion.span
-          className="text-sm sm:text-base inline-block select-none text-emerald-400 font-mono font-black drop-shadow-[0_0_8px_rgba(16,185,129,0.95)] hover:scale-115 transition-transform duration-200"
-          animate={state === "resting" ? { scaleY: 0.8, skewX: 10 } : {}}
+        <motion.pre
+          className="text-[10px] sm:text-xs md:text-sm leading-[1.1] font-mono select-none text-emerald-400 font-bold drop-shadow-[0_0_8px_rgba(16,185,129,0.95)] hover:scale-105 transition-transform duration-200 whitespace-pre"
+          style={{
+            margin: 0,
+            padding: 0,
+            background: "transparent",
+            border: "none",
+          }}
+          animate={state === "resting" ? { scaleY: 0.85, skewX: 5 } : { scaleY: 1, skewX: 0 }}
         >
           {getAsciiTurtle()}
-        </motion.span>
+        </motion.pre>
       </motion.div>
     </div>
   );
